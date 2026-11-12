@@ -8,6 +8,7 @@ public class Servicio {
 	private boolean activo;
 
 	public Servicio(String nombre, String descripcion, float precioMensual) {
+		super();
 		this.nombre = nombre;
 		this.descripcion = descripcion;
 		this.precioMensual = precioMensual;
