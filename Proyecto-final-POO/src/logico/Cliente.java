@@ -2,39 +2,73 @@ package logico;
 
 import java.util.ArrayList;
 
-public class Cliente {
-	private String idCliente;
-	private String cedula;
-	private String nombreCliente;
-	private String direccion;
-	private String tipoCliente;
-	private String numeroContrato;
-	private boolean estadoActivo;
-	private float deudaPendiente;
-	private float limiteCredito;
-	private int fidepuntos;
-	private ArrayList<String> numerosTelefono;
-	private ArrayList<Servicio> serviciosContratados;
-	private ArrayList<Factura> misFacturas;
+public abstract class Cliente {
+	protected String idCliente;
+	protected String cedula;
+	protected String nombreCliente;
+	protected String direccion;
+	protected String numeroContrato;
+	protected boolean estadoActivo;
+	protected int fidepuntos;
+	protected ArrayList<String> numerosTelefono;
+	protected ArrayList<PaqueteActivo> paquetes;
 
-	public Cliente(String idCliente, String cedula, String nombreCliente, String direccion, String tipoCliente, String telefonoPrincipal, String numeroContrato, float limiteCredito) {
+	public Cliente(String idCliente, String cedula, String nombreCliente, String direccion, String telefonoPrincipal, String numeroContrato) {
 		super();
 		this.idCliente = idCliente;
 		this.cedula = cedula;
 		this.nombreCliente = nombreCliente;
 		this.direccion = direccion;
-		this.tipoCliente = tipoCliente;
 		this.numeroContrato = numeroContrato;
 		this.estadoActivo = true;
-		this.deudaPendiente = 0.0f;
-		this.limiteCredito = limiteCredito;
 		this.fidepuntos = 0;
 		this.numerosTelefono = new ArrayList<>();
 		if (telefonoPrincipal != null && !telefonoPrincipal.trim().isEmpty()) {
 			this.numerosTelefono.add(telefonoPrincipal.trim());
 		}
-		this.serviciosContratados = new ArrayList<>();
-		this.misFacturas = new ArrayList<>();
+		this.paquetes = new ArrayList<>();
+	}
+
+	public abstract String getTipo();
+
+	public abstract boolean comprarPaquete(Paquete paquete);
+
+	public boolean tieneTelefono(String telefono) {
+		int i = 0;
+		boolean encontrado = false;
+		while (!encontrado && i < numerosTelefono.size()) {
+			if (numerosTelefono.get(i).equalsIgnoreCase(telefono)) {
+				encontrado = true;
+			}
+			i++;
+		}
+		return encontrado;
+	}
+
+	public void agregarTelefono(String nuevoTelefono) {
+		if (nuevoTelefono != null && !nuevoTelefono.trim().isEmpty() && !tieneTelefono(nuevoTelefono.trim())) {
+			this.numerosTelefono.add(nuevoTelefono.trim());
+		}
+	}
+
+	public void eliminarTelefono(String telefono) {
+		int i = 0;
+		boolean encontrado = false;
+		while (!encontrado && i < numerosTelefono.size()) {
+			if (numerosTelefono.get(i).equalsIgnoreCase(telefono)) {
+				numerosTelefono.remove(i);
+				encontrado = true;
+			}
+			i++;
+		}
+	}
+
+	public boolean canjearFidepuntos(int puntosRequeridos) {
+		if (puntosRequeridos > 0 && this.fidepuntos >= puntosRequeridos) {
+			this.fidepuntos = this.fidepuntos - puntosRequeridos;
+			return true;
+		}
+		return false;
 	}
 
 	public String getIdCliente() {
@@ -69,14 +103,6 @@ public class Cliente {
 		this.direccion = direccion;
 	}
 
-	public String getTipoCliente() {
-		return tipoCliente;
-	}
-
-	public void setTipoCliente(String tipoCliente) {
-		this.tipoCliente = tipoCliente;
-	}
-
 	public String getNumeroContrato() {
 		return numeroContrato;
 	}
@@ -91,22 +117,6 @@ public class Cliente {
 
 	public void setEstadoActivo(boolean estadoActivo) {
 		this.estadoActivo = estadoActivo;
-	}
-
-	public float getDeudaPendiente() {
-		return deudaPendiente;
-	}
-
-	public void setDeudaPendiente(float deudaPendiente) {
-		this.deudaPendiente = deudaPendiente;
-	}
-
-	public float getLimiteCredito() {
-		return limiteCredito;
-	}
-
-	public void setLimiteCredito(float limiteCredito) {
-		this.limiteCredito = limiteCredito;
 	}
 
 	public int getFidepuntos() {
@@ -125,125 +135,11 @@ public class Cliente {
 		this.numerosTelefono = numerosTelefono;
 	}
 
-	public ArrayList<Servicio> getServiciosContratados() {
-		return serviciosContratados;
+	public ArrayList<PaqueteActivo> getPaquetes() {
+		return paquetes;
 	}
 
-	public void setServiciosContratados(ArrayList<Servicio> serviciosContratados) {
-		this.serviciosContratados = serviciosContratados;
+	public void setPaquetes(ArrayList<PaqueteActivo> paquetes) {
+		this.paquetes = paquetes;
 	}
-
-	public ArrayList<Factura> getMisFacturas() {
-		return misFacturas;
-	}
-
-	public void setMisFacturas(ArrayList<Factura> misFacturas) {
-		this.misFacturas = misFacturas;
-	}
-
-	public boolean tieneTelefono(String telefono) {
-		int i = 0;
-		boolean encontrado = false;
-		while (!encontrado && i < numerosTelefono.size()) {
-			if (numerosTelefono.get(i).equalsIgnoreCase(telefono)) {
-				encontrado = true;
-			}
-			i++;
-		}
-		return encontrado;
-	}
-
-	public void agregarTelefono(String nuevoTelefono) {
-		if (!tieneTelefono(nuevoTelefono)) {
-			this.numerosTelefono.add(nuevoTelefono);
-		}
-	}
-
-	public void eliminarTelefono(String telefono) {
-		int i = 0;
-		boolean encontrado = false;
-		while (!encontrado && i < numerosTelefono.size()) {
-			if (numerosTelefono.get(i).equalsIgnoreCase(telefono)) {
-				numerosTelefono.remove(i);
-				encontrado = true;
-			}
-			i++;
-		}
-	}
-
-	public void agregarServicio(Servicio servicio) {
-		this.serviciosContratados.add(servicio);
-	}
-
-	public boolean verificarSuspension() {
-		if (this.deudaPendiente > this.limiteCredito) {
-			this.estadoActivo = false;
-		}
-		return !this.estadoActivo;
-	}
-
-	public void abonarDeuda(float monto) {
-		if (monto > 0 && monto <= this.deudaPendiente) {
-			this.deudaPendiente = this.deudaPendiente - monto;
-			this.fidepuntos = this.fidepuntos + (int) (monto / 100);
-			if (this.deudaPendiente <= this.limiteCredito) {
-				this.estadoActivo = true;
-			}
-		}
-	}
-
-	public boolean canjearFidepuntos(int puntosRequeridos) {
-		if (puntosRequeridos > 0 && this.fidepuntos >= puntosRequeridos) {
-			this.fidepuntos = this.fidepuntos - puntosRequeridos;
-			return true;
-		}
-		return false;
-	}
-
-	/*
-	public Servicio buscarServicioById(String idServicio) {
-		Servicio servAux = null;
-		int i = 0;
-		boolean encontrado = false;
-		while (!encontrado && i < serviciosContratados.size()) {
-			if (serviciosContratados.get(i).getIdServicio().equalsIgnoreCase(idServicio)) {
-				servAux = serviciosContratados.get(i);
-				encontrado = true;
-			}
-			i++;
-		}
-		return servAux;
-	}
-
-	public void eliminarServicio(String idServicio) {
-		Servicio aux = buscarServicioById(idServicio);
-		if (aux != null) {
-			serviciosContratados.remove(aux);
-		}
-	}
-
-	*/
-	
-	/*EN espera de clase servicio para completar los calculos de costos 
-	public void agregarFactura(Factura factura) {
-		this.misFacturas.add(factura);
-		this.deudaPendiente = this.deudaPendiente + calcularRentaMensual();
-		int i = 0;
-		while (i < serviciosContratados.size()) {
-			serviciosContratados.get(i).consumirMesPromocion();
-			i++;
-		}
-		verificarSuspension();
-	}
-
-	public float calcularRentaMensual() {
-		float total = 0;
-		int i = 0;
-		while (i < serviciosContratados.size()) {
-			total = total + serviciosContratados.get(i).calcularCosto();
-			i++;
-		}
-		return total;
-	}
-	*/
 }
