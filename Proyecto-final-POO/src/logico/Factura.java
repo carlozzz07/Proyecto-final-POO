@@ -102,6 +102,10 @@ public class Factura {
 		return !codigo.equals("")&& cliente != null&& servicios.size() > 0
 				&& mes >= 1 && mes <= 12 && anio > 0;
 	}
+	
+	public void noValido() {
+		
+	}
 
 	@Override
 	public String toString() {
