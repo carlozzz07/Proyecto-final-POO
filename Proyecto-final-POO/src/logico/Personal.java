@@ -7,21 +7,24 @@ public abstract class Personal {
 	protected String nombre;
 	protected String apellidos;
 	protected String telefono;
-	protected String usario;
+	protected String usuario;
 	protected String contrasena;
 	protected boolean estado;
+	protected float sueldoBase;
 	
 	public Personal(String codigo, String cedula, String nombre, String apellidos, String telefono, String usario,
-			String contrasena, boolean estado) {
+			String contrasena, boolean estado, float sueldoBase) {
 		super();
 		this.codigo = codigo;
 		this.cedula = cedula;
 		this.nombre = nombre;
 		this.apellidos = apellidos;
 		this.telefono = telefono;
-		this.usario = usario;
+		this.usuario = usario;
 		this.contrasena = contrasena;
-		this.estado = estado;
+		this.sueldoBase= sueldoBase;
+		
+		this.estado = true;
 	}
 
 	public String getCodigo() {
@@ -45,7 +48,7 @@ public abstract class Personal {
 	}
 
 	public String getUsario() {
-		return usario;
+		return usuario;
 	}
 
 	public String getContrasena() {
@@ -55,6 +58,51 @@ public abstract class Personal {
 	public boolean isEstado() {
 		return estado;
 	}
+
+	public float getSueldoBase() {
+		return sueldoBase;
+	}
+
+	public void setSueldoBase(float sueldoBase) {
+		this.sueldoBase = sueldoBase;
+	}
+
+	public String getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(String usuario) {
+		this.usuario = usuario;
+	}
+
+	public void setCodigo(String codigo) {
+		this.codigo = codigo;
+	}
+
+	public void setCedula(String cedula) {
+		this.cedula = cedula;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public void setApellidos(String apellidos) {
+		this.apellidos = apellidos;
+	}
+
+	public void setTelefono(String telefono) {
+		this.telefono = telefono;
+	}
+
+	public void setContrasena(String contrasena) {
+		this.contrasena = contrasena;
+	}
+
+	public void setEstado(boolean estado) {
+		this.estado = estado;
+	}
 	
+	public abstract String getTipo();
 	
 }
