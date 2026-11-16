@@ -82,7 +82,7 @@ public class Factura {
 		int i = 0;
 		
 		while (i < servicios.size()) {
-			total = total + servicios.get(i).getPrecioMensual();
+			total = total + servicios.get(i).getPrecioBase();
 			i++;
 		}
 		return total;
@@ -103,9 +103,6 @@ public class Factura {
 				&& mes >= 1 && mes <= 12 && anio > 0;
 	}
 	
-	public void noValido() {
-		
-	}
 
 	@Override
 	public String toString() {
