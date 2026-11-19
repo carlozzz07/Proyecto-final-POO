@@ -11,7 +11,6 @@ public abstract class Cliente {
 	protected boolean estadoActivo;
 	protected int fidepuntos;
 	protected ArrayList<String> numerosTelefono;
-	protected ArrayList<PaqueteActivo> paquetes;
 
 	public Cliente(String idCliente, String cedula, String nombreCliente, String direccion, String telefonoPrincipal, String numeroContrato) {
 		super();
@@ -26,12 +25,9 @@ public abstract class Cliente {
 		if (telefonoPrincipal != null && !telefonoPrincipal.trim().isEmpty()) {
 			this.numerosTelefono.add(telefonoPrincipal.trim());
 		}
-		this.paquetes = new ArrayList<>();
 	}
 
 	public abstract String getTipo();
-
-	public abstract boolean comprarPaquete(Paquete paquete);
 
 	public boolean tieneTelefono(String telefono) {
 		int i = 0;
@@ -135,11 +131,5 @@ public abstract class Cliente {
 		this.numerosTelefono = numerosTelefono;
 	}
 
-	public ArrayList<PaqueteActivo> getPaquetes() {
-		return paquetes;
-	}
 
-	public void setPaquetes(ArrayList<PaqueteActivo> paquetes) {
-		this.paquetes = paquetes;
-	}
 }
