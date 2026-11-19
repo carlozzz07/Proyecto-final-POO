@@ -48,8 +48,5 @@ public class Administrativo extends Empleado {
 		return getSueldoBase() + bono;
 	}
 
-	@Override
-	public boolean esValido() {
-		return super.esValido() && departamento != null && !departamento.equals("") && bono >= 0;
-	}
+	
 }

@@ -37,32 +37,34 @@ public class EmpresaAltice {
 	}
 
 	public void registrarPersona(Persona persona) {
-		if (persona != null && !this.personas.contains(persona)) {
+		if (persona == null) {
+			return;
+		}
+		if (persona instanceof Cliente && buscarClienteByCedula(persona.getCedula()) == null) {
 			this.personas.add(persona);
-			if (persona instanceof Cliente) {
-				generadorIdCliente++;
-			} else if (persona instanceof Empleado) {
-				generadorIdEmpleado++;
-			}
+			generadorIdCliente++;
+		} else if (persona instanceof Empleado && buscarEmpleadoByCedula(persona.getCedula()) == null) {
+			this.personas.add(persona);
+			generadorIdEmpleado++;
 		}
 	}
 
 	public void registrarServicio(Servicio servicio) {
-		if (servicio != null && !this.servicios.contains(servicio)) {
+		if (servicio != null) {
 			this.servicios.add(servicio);
 			generadorIdServicio++;
 		}
 	}
 
 	public void registrarPlan(Plan plan) {
-		if (plan != null && !this.planes.contains(plan)) {
+		if (plan != null) {
 			this.planes.add(plan);
 			generadorIdPlan++;
 		}
 	}
 
 	public void registrarContrato(Contrato contrato) {
-		if (contrato != null && !this.contratos.contains(contrato)) {
+		if (contrato != null && buscarContratoById(contrato.getIdContrato()) == null) {
 			this.contratos.add(contrato);
 			generadorIdContrato++;
 
@@ -84,7 +86,7 @@ public class EmpresaAltice {
 	}
 
 	public void registrarFactura(Factura factura) {
-		if (factura != null && !this.facturas.contains(factura)) {
+		if (factura != null) {
 			this.facturas.add(factura);
 			generadorIdFactura++;
 
@@ -95,10 +97,14 @@ public class EmpresaAltice {
 	}
 
 	public int generarFacturasDelMes(int mes, int anio) {
+		if (mes < 1 || mes > 12) {
+			return 0;
+		}
 		int generadas = 0;
 		LocalDate fechaEmision = LocalDate.of(anio, mes, 1);
 
-		for (Contrato contrato : contratos) {
+		for (int i = 0; i < contratos.size(); i++) {
+			Contrato contrato = contratos.get(i);
 			if (contrato.isActivo() && !contrato.esPrepago() && !contrato.tieneFacturaEnPeriodo(mes, anio)) {
 				String idFac = "FAC-" + generadorIdFactura;
 				String ncf = String.format("B01%08d", generadorIdFactura);
@@ -111,8 +117,8 @@ public class EmpresaAltice {
 	}
 
 	public void verificarSuspensiones() {
-		for (Contrato contrato : contratos) {
-			contrato.verificarSuspension();
+		for (int i = 0; i < contratos.size(); i++) {
+			contratos.get(i).verificarSuspension();
 		}
 	}
 
@@ -120,8 +126,9 @@ public class EmpresaAltice {
 		if (cedula == null) {
 			return null;
 		}
-		for (Persona persona : personas) {
-			if (persona instanceof Cliente && persona.getCedula().equalsIgnoreCase(cedula)) {
+		for (int i = 0; i < personas.size(); i++) {
+			Persona persona = personas.get(i);
+			if (persona instanceof Cliente && cedula.equalsIgnoreCase(persona.getCedula())) {
 				return (Cliente) persona;
 			}
 		}
@@ -132,8 +139,9 @@ public class EmpresaAltice {
 		if (cedula == null) {
 			return null;
 		}
-		for (Persona persona : personas) {
-			if (persona instanceof Empleado && persona.getCedula().equalsIgnoreCase(cedula)) {
+		for (int i = 0; i < personas.size(); i++) {
+			Persona persona = personas.get(i);
+			if (persona instanceof Empleado && cedula.equalsIgnoreCase(persona.getCedula())) {
 				return (Empleado) persona;
 			}
 		}
@@ -144,9 +152,9 @@ public class EmpresaAltice {
 		if (id == null) {
 			return null;
 		}
-		for (Contrato contrato : contratos) {
-			if (contrato.getIdContrato().equalsIgnoreCase(id)) {
-				return contrato;
+		for (int i = 0; i < contratos.size(); i++) {
+			if (id.equalsIgnoreCase(contratos.get(i).getIdContrato())) {
+				return contratos.get(i);
 			}
 		}
 		return null;
@@ -154,9 +162,9 @@ public class EmpresaAltice {
 
 	public ArrayList<Cliente> getClientes() {
 		ArrayList<Cliente> listaClientes = new ArrayList<>();
-		for (Persona persona : personas) {
-			if (persona instanceof Cliente) {
-				listaClientes.add((Cliente) persona);
+		for (int i = 0; i < personas.size(); i++) {
+			if (personas.get(i) instanceof Cliente) {
+				listaClientes.add((Cliente) personas.get(i));
 			}
 		}
 		return listaClientes;
@@ -164,9 +172,9 @@ public class EmpresaAltice {
 
 	public ArrayList<Empleado> getEmpleados() {
 		ArrayList<Empleado> listaEmpleados = new ArrayList<>();
-		for (Persona persona : personas) {
-			if (persona instanceof Empleado) {
-				listaEmpleados.add((Empleado) persona);
+		for (int i = 0; i < personas.size(); i++) {
+			if (personas.get(i) instanceof Empleado) {
+				listaEmpleados.add((Empleado) personas.get(i));
 			}
 		}
 		return listaEmpleados;
@@ -177,10 +185,10 @@ public class EmpresaAltice {
 		if (inicio == null || fin == null) {
 			return total;
 		}
-		for (Factura factura : facturas) {
-			LocalDate emision = factura.getFechaEmision();
+		for (int i = 0; i < facturas.size(); i++) {
+			LocalDate emision = facturas.get(i).getFechaEmision();
 			if (emision != null && !emision.isBefore(inicio) && !emision.isAfter(fin)) {
-				total += factura.getTotal();
+				total += facturas.get(i).getTotal();
 			}
 		}
 		return total;
@@ -188,51 +196,11 @@ public class EmpresaAltice {
 
 	public int cantidadContratosPorModalidad(boolean esPrepago) {
 		int cantidad = 0;
-		for (Contrato contrato : contratos) {
-			if (contrato.isActivo() && contrato.esPrepago() == esPrepago) {
+		for (int i = 0; i < contratos.size(); i++) {
+			if (contratos.get(i).isActivo() && contratos.get(i).esPrepago() == esPrepago) {
 				cantidad++;
 			}
 		}
 		return cantidad;
-	}
-
-	public ArrayList<Persona> getPersonas() {
-		return personas;
-	}
-
-	public void setPersonas(ArrayList<Persona> personas) {
-		this.personas = personas;
-	}
-
-	public ArrayList<Servicio> getServicios() {
-		return servicios;
-	}
-
-	public void setServicios(ArrayList<Servicio> servicios) {
-		this.servicios = servicios;
-	}
-
-	public ArrayList<Plan> getPlanes() {
-		return planes;
-	}
-
-	public void setPlanes(ArrayList<Plan> planes) {
-		this.planes = planes;
-	}
-
-	public ArrayList<Contrato> getContratos() {
-		return contratos;
-	}
-
-	public void setContratos(ArrayList<Contrato> contratos) {
-		this.contratos = contratos;
-	}
-
-	public ArrayList<Factura> getFacturas() {
-		return facturas;
-	}
-
-	public void setFacturas(ArrayList<Factura> facturas) {
-		this.facturas = facturas;
 	}
 }
