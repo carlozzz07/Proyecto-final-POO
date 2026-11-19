@@ -1,74 +1,96 @@
 package logico;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class Contrato {
+
 	private String idContrato;
-	private Servicio servicio;
+	private Cliente cliente;
+	private Plan plan;
+	private Comercial comercial;
 	private LocalDate fechaInicio;
 	private LocalDate fechaFin;
 	private boolean activo;
-	private boolean tienePromocion;
-	private int mesesPromocionRestantes;
-	private float porcentajeDescuento;
+	private boolean suspendido;
+	private ArrayList<Factura> facturas;
 
-	public Contrato(String idContrato, Servicio servicio, LocalDate fechaInicio) {
+	public Contrato(String idContrato, Cliente cliente, Plan plan, Comercial comercial, LocalDate fechaInicio) {
 		super();
 		this.idContrato = idContrato;
-		this.servicio = servicio;
-		this.fechaInicio = fechaInicio;
+		this.cliente = cliente;
+		this.plan = plan;
+		this.comercial = comercial;
+		this.fechaInicio = (fechaInicio != null) ? fechaInicio : LocalDate.now();
 		this.fechaFin = null;
 		this.activo = true;
-		this.tienePromocion = false;
-		this.mesesPromocionRestantes = 0;
-		this.porcentajeDescuento = 0.0f;
+		this.suspendido = false;
+		this.facturas = new ArrayList<>();
 	}
 
-	public float calcularCosto() {
-		if (!this.activo || this.servicio == null) {
-			return 0.0f;
-		}
-		float costo = this.servicio.getPrecioBase();
-		if (this.tienePromocion && this.mesesPromocionRestantes > 0) {
-			float descuento = costo * (this.porcentajeDescuento / 100.0f);
-			costo = costo - descuento;
-		}
-		return costo;
+	public boolean esPrepago() {
+		return this.plan != null && this.plan.isEsPrepago();
 	}
 
-	public boolean activarPromocion(int meses, float porcentaje) {
-		if (this.activo && meses > 0 && porcentaje > 0 && porcentaje <= 100) {
-			this.tienePromocion = true;
-			this.mesesPromocionRestantes = meses;
-			this.porcentajeDescuento = porcentaje;
-			return true;
+	public String getTipoPago() {
+		if (this.plan == null) {
+			return "";
+		}
+		return this.plan.getTipoPago();
+	}
+
+	public void agregarFactura(Factura factura) {
+		if (factura != null && !this.facturas.contains(factura)) {
+			this.facturas.add(factura);
+		}
+	}
+
+	public boolean tieneFacturaEnPeriodo(int mes, int anio) {
+		for (Factura factura : facturas) {
+			LocalDate emision = factura.getFechaEmision();
+			if (emision != null && emision.getMonthValue() == mes && emision.getYear() == anio) {
+				return true;
+			}
 		}
 		return false;
 	}
 
-	public void consumirMesPromocion() {
-		if (this.tienePromocion && this.mesesPromocionRestantes > 0) {
-			this.mesesPromocionRestantes--;
-			if (this.mesesPromocionRestantes == 0) {
-				quitarPromocion();
+	public float calcularDeudaPendiente() {
+		float deuda = 0.0f;
+		for (Factura factura : facturas) {
+			if (!factura.isPagada()) {
+				deuda += factura.getTotal();
 			}
 		}
+		return deuda;
 	}
 
-	public void quitarPromocion() {
-		this.tienePromocion = false;
-		this.mesesPromocionRestantes = 0;
-		this.porcentajeDescuento = 0.0f;
+	public boolean verificarSuspension() {
+		if (!this.activo || this.fechaFin != null) {
+			return false;
+		}
+		if (esPrepago()) {
+			this.suspendido = false;
+			return false;
+		}
+		for (Factura factura : facturas) {
+			if (factura.estaVencida()) {
+				this.suspendido = true;
+				return true;
+			}
+		}
+		this.suspendido = false;
+		return false;
 	}
 
 	public boolean cancelar() {
-		if (this.activo) {
-			this.activo = false;
-			this.fechaFin = LocalDate.now();
-			quitarPromocion();
-			return true;
+		if (!this.activo) {
+			return false;
 		}
-		return false;
+		this.activo = false;
+		this.suspendido = false;
+		this.fechaFin = LocalDate.now();
+		return true;
 	}
 
 	public String getIdContrato() {
@@ -79,12 +101,28 @@ public class Contrato {
 		this.idContrato = idContrato;
 	}
 
-	public Servicio getServicio() {
-		return servicio;
+	public Cliente getCliente() {
+		return cliente;
 	}
 
-	public void setServicio(Servicio servicio) {
-		this.servicio = servicio;
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
+	}
+
+	public Plan getPlan() {
+		return plan;
+	}
+
+	public void setPlan(Plan plan) {
+		this.plan = plan;
+	}
+
+	public Comercial getComercial() {
+		return comercial;
+	}
+
+	public void setComercial(Comercial comercial) {
+		this.comercial = comercial;
 	}
 
 	public LocalDate getFechaInicio() {
@@ -111,27 +149,19 @@ public class Contrato {
 		this.activo = activo;
 	}
 
-	public boolean isTienePromocion() {
-		return tienePromocion;
+	public boolean isSuspendido() {
+		return suspendido;
 	}
 
-	public void setTienePromocion(boolean tienePromocion) {
-		this.tienePromocion = tienePromocion;
+	public void setSuspendido(boolean suspendido) {
+		this.suspendido = suspendido;
 	}
 
-	public int getMesesPromocionRestantes() {
-		return mesesPromocionRestantes;
+	public ArrayList<Factura> getFacturas() {
+		return facturas;
 	}
 
-	public void setMesesPromocionRestantes(int mesesPromocionRestantes) {
-		this.mesesPromocionRestantes = mesesPromocionRestantes;
-	}
-
-	public float getPorcentajeDescuento() {
-		return porcentajeDescuento;
-	}
-
-	public void setPorcentajeDescuento(float porcentajeDescuento) {
-		this.porcentajeDescuento = porcentajeDescuento;
+	public void setFacturas(ArrayList<Factura> facturas) {
+		this.facturas = facturas;
 	}
 }
