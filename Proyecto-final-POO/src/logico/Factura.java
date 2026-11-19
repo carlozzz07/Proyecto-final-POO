@@ -1,111 +1,150 @@
 package logico;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class Factura {
 
-	private String codigo;
-	private Cliente cliente;
-	private ArrayList<Servicio> servicios;
-	private int mes;
-	private int anio;
+	private String idFactura;
+	private String ncf;
 	private LocalDate fechaEmision;
-	private float monto;
-	private boolean pagada;
+	private LocalDate fechaVencimiento;
 	private LocalDate fechaPago;
+	private Contrato contrato;
+	private float subtotal;
+	private float itbis;
+	private float total;
+	private boolean pagada;
 
-	Factura(String codigo, Cliente cliente, ArrayList<Servicio> servicios, int mes, int anio) {
+	public Factura(String idFactura, String ncf, LocalDate fechaEmision, Contrato contrato) {
 		super();
-		this.codigo = codigo;
-		this.cliente = cliente;
-		this.servicios = new ArrayList<Servicio>(servicios);
-		this.mes = mes;
-		this.anio = anio;
-		this.fechaEmision = LocalDate.now();
-		this.monto = calcularMonto();
-		this.pagada = false;
-		this.fechaPago = null;
+		this.idFactura = idFactura;
+		this.ncf = ncf;
+		this.fechaEmision = (fechaEmision != null) ? fechaEmision : LocalDate.now();
+		this.contrato = contrato;
+		this.subtotal = calcularSubtotal();
+		this.itbis = calcularItbis();
+		this.total = calcularTotal();
+
+		if (this.contrato != null && this.contrato.esPrepago()) {
+			this.fechaVencimiento = this.fechaEmision;
+			this.fechaPago = this.fechaEmision;
+			this.pagada = true;
+		} else {
+			this.fechaVencimiento = this.fechaEmision.plusDays(15);
+			this.fechaPago = null;
+			this.pagada = false;
+		}
 	}
 
-	public String getCodigo() {
-		return codigo;
+	public float calcularSubtotal() {
+		if (this.contrato != null && this.contrato.getPlan() != null) {
+			return this.contrato.getPlan().calcularPrecio();
+		}
+		return 0.0f;
 	}
 
-	public Cliente getCliente() {
-		return cliente;
+	public float calcularItbis() {
+		return this.subtotal * 0.18f;
 	}
 
-	public ArrayList<Servicio> getServicios() {
-		return new ArrayList<Servicio>(servicios);
+	public float calcularTotal() {
+		return this.subtotal + this.itbis;
 	}
 
-	public int cantidadServicios() {
-		return servicios.size();
+	public boolean estaVencida() {
+		if (this.pagada || this.fechaVencimiento == null) {
+			return false;
+		}
+		return LocalDate.now().isAfter(this.fechaVencimiento);
 	}
 
-	public int getMes() {
-		return mes;
+	public void marcarComoPagada() {
+		if (!this.pagada) {
+			this.pagada = true;
+			this.fechaPago = LocalDate.now();
+			if (this.contrato != null) {
+				this.contrato.verificarSuspension();
+			}
+		}
 	}
 
-	public int getAnio() {
-		return anio;
+	public String getIdFactura() {
+		return idFactura;
 	}
 
-	public String getPeriodo() {
-		return mes + "/" + anio;
+	public void setIdFactura(String idFactura) {
+		this.idFactura = idFactura;
+	}
+
+	public String getNcf() {
+		return ncf;
+	}
+
+	public void setNcf(String ncf) {
+		this.ncf = ncf;
 	}
 
 	public LocalDate getFechaEmision() {
 		return fechaEmision;
 	}
 
-	public float getMonto() {
-		return monto;
+	public void setFechaEmision(LocalDate fechaEmision) {
+		this.fechaEmision = fechaEmision;
 	}
 
-	public boolean isPagada() {
-		return pagada;
+	public LocalDate getFechaVencimiento() {
+		return fechaVencimiento;
+	}
+
+	public void setFechaVencimiento(LocalDate fechaVencimiento) {
+		this.fechaVencimiento = fechaVencimiento;
 	}
 
 	public LocalDate getFechaPago() {
 		return fechaPago;
 	}
 
-	public boolean perteneceAlPeriodo(int mes, int anio) {
-		return this.mes == mes && this.anio == anio;
+	public void setFechaPago(LocalDate fechaPago) {
+		this.fechaPago = fechaPago;
 	}
-	
-	private float calcularMonto() {
-		
-		float total = 0;
-		int i = 0;
-		
-		while (i < servicios.size()) {
-			total = total + servicios.get(i).getPrecioBase();
-			i++;
-		}
+
+	public Contrato getContrato() {
+		return contrato;
+	}
+
+	public void setContrato(Contrato contrato) {
+		this.contrato = contrato;
+	}
+
+	public float getSubtotal() {
+		return subtotal;
+	}
+
+	public void setSubtotal(float subtotal) {
+		this.subtotal = subtotal;
+	}
+
+	public float getItbis() {
+		return itbis;
+	}
+
+	public void setItbis(float itbis) {
+		this.itbis = itbis;
+	}
+
+	public float getTotal() {
 		return total;
 	}
 
-	boolean registrarPago() {
-		
-		if (pagada) {
-			return false;
-		}
-		pagada = true;
-		fechaPago = LocalDate.now();
-		return true;
+	public void setTotal(float total) {
+		this.total = total;
 	}
 
-	public boolean esValido() {
-		return !codigo.equals("")&& cliente != null&& servicios.size() > 0
-				&& mes >= 1 && mes <= 12 && anio > 0;
+	public boolean isPagada() {
+		return pagada;
 	}
-	
 
-	@Override
-	public String toString() {
-		return codigo + " - " + cliente.getNombreCliente() + " (" + getPeriodo() + ")";
+	public void setPagada(boolean pagada) {
+		this.pagada = pagada;
 	}
 }

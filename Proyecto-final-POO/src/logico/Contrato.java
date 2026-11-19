@@ -59,7 +59,7 @@ public class Contrato {
 		float deuda = 0.0f;
 		for (Factura factura : facturas) {
 			if (!factura.isPagada()) {
-				deuda += factura.getTotal();
+					deuda += factura.getTotal();
 			}
 		}
 		return deuda;
