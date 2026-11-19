@@ -11,7 +11,6 @@ public abstract class Servicio {
 	private boolean activo;
 	private LocalDate fechaCreacion;
 	private LocalDate fechaBaja;
-
 	private boolean tienePromocion;
 	private int mesesPromocionRestantes;
 	private float porcentajeDescuento;
@@ -79,10 +78,10 @@ public abstract class Servicio {
 	}
 
 	public boolean setNombre(String nombre) {
-		if (nombre == null || nombre.trim().equals("")) {
+		if (nombre == null || nombre.equals("")) {
 			return false;
 		}
-		this.nombre = nombre.trim();
+		this.nombre = nombre;
 		return true;
 	}
 

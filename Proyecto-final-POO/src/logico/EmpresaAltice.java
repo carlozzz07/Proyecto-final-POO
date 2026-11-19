@@ -6,12 +6,10 @@ public class EmpresaAltice {
 
 	private static EmpresaAltice instancia;
 
-
 	private ArrayList<Cliente> clientes;
 	private ArrayList<Factura> facturas;
 	private ArrayList<Servicio> servicios;
-	private ArrayList<Personal> personal;
-	private ArrayList<Local> locales;
+	private ArrayList<Empleado> personal;
 	public static int generadorIdCliente = 1;
 	public static int generadorIdFactura = 1;
 	public static int generadorIdServicio = 1;
@@ -23,7 +21,6 @@ public class EmpresaAltice {
 		this.facturas = new ArrayList<>();
 		this.servicios = new ArrayList<>();
 		this.personal = new ArrayList<>();
-		this.locales = new ArrayList<>();
 	}
 
 	public static EmpresaAltice getInstance() {
@@ -32,8 +29,6 @@ public class EmpresaAltice {
 		}
 		return instancia;
 	}
-
-
 
 	public ArrayList<Cliente> getClientes() {
 		return clientes;
@@ -59,11 +54,11 @@ public class EmpresaAltice {
 		this.servicios = servicios;
 	}
 
-	public ArrayList<Personal> getPersonal() {
+	public ArrayList<Empleado> getPersonal() {
 		return personal;
 	}
 
-	public void setPersonal(ArrayList<Personal> personal) {
+	public void setPersonal(ArrayList<Empleado> personal) {
 		this.personal = personal;
 	}
 }
