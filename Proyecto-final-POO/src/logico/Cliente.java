@@ -11,6 +11,7 @@ public abstract class Cliente {
 	protected boolean estadoActivo;
 	protected int fidepuntos;
 	protected ArrayList<String> numerosTelefono;
+	
 
 	public Cliente(String idCliente, String cedula, String nombreCliente, String direccion, String telefonoPrincipal, String numeroContrato) {
 		super();
