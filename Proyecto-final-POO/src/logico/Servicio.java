@@ -29,10 +29,6 @@ public abstract class Servicio {
 		this.porcentajeDescuento = 0.0f;
 	}
 
-	public abstract String getTipo();
-
-	public abstract String getDetalle();
-
 	public String getIdServicio() {
 		return idServicio;
 	}
@@ -41,12 +37,32 @@ public abstract class Servicio {
 		return nombre;
 	}
 
+	public boolean setNombre(String nombre) {
+		if (nombre == null || nombre.equals("")) {
+			return false;
+		}
+		this.nombre = nombre;
+		return true;
+	}
+
 	public String getDescripcion() {
 		return descripcion;
 	}
 
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+
 	public float getPrecioBase() {
 		return precioBase;
+	}
+
+	public boolean setPrecioBase(float precioBase) {
+		if (precioBase <= 0) {
+			return false;
+		}
+		this.precioBase = precioBase;
+		return true;
 	}
 
 	public boolean isActivo() {
@@ -73,27 +89,7 @@ public abstract class Servicio {
 		return porcentajeDescuento;
 	}
 
-	void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
-
-	public boolean setNombre(String nombre) {
-		if (nombre == null || nombre.equals("")) {
-			return false;
-		}
-		this.nombre = nombre;
-		return true;
-	}
-
-	boolean setPrecioBase(float precioBase) {
-		if (precioBase <= 0) {
-			return false;
-		}
-		this.precioBase = precioBase;
-		return true;
-	}
-
-	boolean darDeBaja() {
+	public boolean darDeBaja() {
 		if (!activo) {
 			return false;
 		}
@@ -103,7 +99,7 @@ public abstract class Servicio {
 		return true;
 	}
 
-	boolean activar() {
+	public boolean activar() {
 		if (activo) {
 			return false;
 		}
@@ -112,7 +108,7 @@ public abstract class Servicio {
 		return true;
 	}
 
-	boolean activarPromocion(int mesesDuracion, float porcentajeDescuento) {
+	public boolean activarPromocion(int mesesDuracion, float porcentajeDescuento) {
 		if (!activo || tienePromocion) {
 			return false;
 		}
@@ -125,7 +121,7 @@ public abstract class Servicio {
 		return false;
 	}
 
-	void consumirMesPromocion() {
+	public void consumirMesPromocion() {
 		if (this.tienePromocion && this.mesesPromocionRestantes > 0) {
 			this.mesesPromocionRestantes--;
 			if (this.mesesPromocionRestantes == 0) {
@@ -135,7 +131,7 @@ public abstract class Servicio {
 		}
 	}
 
-	void quitarPromocion() {
+	public void quitarPromocion() {
 		this.tienePromocion = false;
 		this.mesesPromocionRestantes = 0;
 		this.porcentajeDescuento = 0.0f;
@@ -182,14 +178,17 @@ public abstract class Servicio {
 			return false;
 		}
 		Servicio otro = (Servicio) obj;
-		return idServicio.equalsIgnoreCase(otro.idServicio);
+		return idServicio != null && idServicio.equalsIgnoreCase(otro.idServicio);
 	}
 
 	@Override
 	public int hashCode() {
+		if (idServicio == null) {
+			return 0;
+		}
 		return idServicio.toLowerCase().hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		String texto = idServicio + " - " + nombre + " ($" + String.format("%.2f", precioBase) + ")";
@@ -198,4 +197,8 @@ public abstract class Servicio {
 		}
 		return texto;
 	}
+
+	public abstract String getTipo();
+
+	public abstract String getDetalle();
 }

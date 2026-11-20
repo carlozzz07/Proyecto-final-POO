@@ -21,40 +21,6 @@ public class Plan {
 		this.activo = true;
 	}
 
-	public void agregarServicio(Servicio servicio) {
-		if (servicio != null && !this.servicios.contains(servicio)) {
-			this.servicios.add(servicio);
-		}
-	}
-
-	public boolean eliminarServicio(String idServicio) {
-		if (idServicio == null) {
-			return false;
-		}
-		for (int i = 0; i < servicios.size(); i++) {
-			if (servicios.get(i).getIdServicio().equalsIgnoreCase(idServicio)) {
-				servicios.remove(i);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public float calcularPrecio() {
-		float total = 0.0f;
-		for (Servicio servicio : servicios) {
-			total += servicio.calcularCosto();
-		}
-		return total;
-	}
-
-	public String getTipoPago() {
-		if (this.esPrepago) {
-			return "Prepago";
-		}
-		return "Postpago";
-	}
-
 	public String getIdPlan() {
 		return idPlan;
 	}
@@ -101,5 +67,56 @@ public class Plan {
 
 	public void setActivo(boolean activo) {
 		this.activo = activo;
+	}
+
+	public void agregarServicio(Servicio servicio) {
+		if (servicio != null && servicio.isActivo()) {
+			boolean existe = false;
+			int i = 0;
+			while (!existe && i < servicios.size()) {
+				if (servicio.getIdServicio() != null
+						&& servicio.getIdServicio().equalsIgnoreCase(servicios.get(i).getIdServicio())) {
+					existe = true;
+				}
+				i++;
+			}
+			if (!existe) {
+				this.servicios.add(servicio);
+			}
+		}
+	}
+
+	public boolean activar() {
+		if (this.activo) {
+			return false;
+		}
+		this.activo = true;
+		return true;
+	}
+
+	public boolean desactivar() {
+		if (!this.activo) {
+			return false;
+		}
+		this.activo = false;
+		return true;
+	}
+
+	public float calcularPrecio() {
+		float total = 0;
+		int i = 0;
+		while (i < servicios.size()) {
+			total += servicios.get(i).calcularCosto();
+			i++;
+		}
+		return total;
+	}
+
+	public String getTipoPago() {
+		if (this.esPrepago) {
+			return "Prepago";
+		} else {
+			return "Postpago";
+		}
 	}
 }

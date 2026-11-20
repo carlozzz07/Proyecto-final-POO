@@ -18,11 +18,15 @@ public abstract class Empleado extends Persona {
 		return fechaEntrada;
 	}
 
+	public void setFechaEntrada(LocalDate fechaEntrada) {
+		this.fechaEntrada = fechaEntrada;
+	}
+
 	public float getSueldoBase() {
 		return sueldoBase;
 	}
 
-	boolean setSueldoBase(float sueldoBase) {
+	public boolean setSueldoBase(float sueldoBase) {
 		if (sueldoBase <= 0) {
 			return false;
 		}
@@ -31,10 +35,11 @@ public abstract class Empleado extends Persona {
 	}
 
 	public int calcularAniosEnEmpresa() {
+		if (fechaEntrada == null) {
+			return 0;
+		}
 		return fechaEntrada.until(LocalDate.now()).getYears();
 	}
-
-	public abstract float calcularSueldo();
 
 	public boolean esValido() {
 		return getId() != null && !getId().equals("")
@@ -48,4 +53,6 @@ public abstract class Empleado extends Persona {
 	public String toString() {
 		return getId() + " - " + getNombre() + " (" + getTipo() + ")";
 	}
+
+	public abstract float calcularSueldo();
 }

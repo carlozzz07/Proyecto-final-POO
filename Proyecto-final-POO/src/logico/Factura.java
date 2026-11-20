@@ -19,7 +19,11 @@ public class Factura {
 		super();
 		this.idFactura = idFactura;
 		this.ncf = ncf;
-		this.fechaEmision = (fechaEmision != null) ? fechaEmision : LocalDate.now();
+		if (fechaEmision != null) {
+			this.fechaEmision = fechaEmision;
+		} else {
+			this.fechaEmision = LocalDate.now();
+		}
 		this.contrato = contrato;
 		this.subtotal = calcularSubtotal();
 		this.itbis = calcularItbis();
@@ -33,38 +37,6 @@ public class Factura {
 			this.fechaVencimiento = this.fechaEmision.plusDays(15);
 			this.fechaPago = null;
 			this.pagada = false;
-		}
-	}
-
-	public float calcularSubtotal() {
-		if (this.contrato != null && this.contrato.getPlan() != null) {
-			return this.contrato.getPlan().calcularPrecio();
-		}
-		return 0.0f;
-	}
-
-	public float calcularItbis() {
-		return this.subtotal * 0.18f;
-	}
-
-	public float calcularTotal() {
-		return this.subtotal + this.itbis;
-	}
-
-	public boolean estaVencida() {
-		if (this.pagada || this.fechaVencimiento == null) {
-			return false;
-		}
-		return LocalDate.now().isAfter(this.fechaVencimiento);
-	}
-
-	public void marcarComoPagada() {
-		if (!this.pagada) {
-			this.pagada = true;
-			this.fechaPago = LocalDate.now();
-			if (this.contrato != null) {
-				this.contrato.verificarSuspension();
-			}
 		}
 	}
 
@@ -146,5 +118,37 @@ public class Factura {
 
 	public void setPagada(boolean pagada) {
 		this.pagada = pagada;
+	}
+
+	public float calcularSubtotal() {
+		if (this.contrato != null && this.contrato.getPlan() != null) {
+			return this.contrato.getPlan().calcularPrecio();
+		}
+		return 0;
+	}
+
+	public float calcularItbis() {
+		return this.subtotal * 0.18f;
+	}
+
+	public float calcularTotal() {
+		return this.subtotal + this.itbis;
+	}
+
+	public boolean estaVencida() {
+		if (this.pagada || this.fechaVencimiento == null) {
+			return false;
+		}
+		return LocalDate.now().isAfter(this.fechaVencimiento);
+	}
+
+	public void marcarComoPagada() {
+		if (!this.pagada) {
+			this.pagada = true;
+			this.fechaPago = LocalDate.now();
+			if (this.contrato != null) {
+				this.contrato.verificarSuspension();
+			}
+		}
 	}
 }

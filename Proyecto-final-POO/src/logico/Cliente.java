@@ -11,42 +11,59 @@ public class Cliente extends Persona {
 		this.contratos = new ArrayList<>();
 	}
 
-	@Override
-	public String getTipo() {
-		return "Cliente";
-	}
-
-	public void agregarContrato(Contrato contrato) {
-		if (contrato != null && !this.contratos.contains(contrato)) {
-			this.contratos.add(contrato);
-		}
-	}
-
-	public boolean cancelarContrato(String idContrato) {
-		if (idContrato == null) {
-			return false;
-		}
-		for (Contrato contrato : contratos) {
-			if (contrato.getIdContrato().equalsIgnoreCase(idContrato)) {
-				return contrato.cancelar();
-			}
-		}
-		return false;
-	}
-
-	public float calcularDeudaTotal() {
-		float totalDeuda = 0.0f;
-		for (Contrato contrato : contratos) {
-			totalDeuda += contrato.calcularDeudaPendiente();
-		}
-		return totalDeuda;
-	}
-
 	public ArrayList<Contrato> getContratos() {
 		return contratos;
 	}
 
 	public void setContratos(ArrayList<Contrato> contratos) {
 		this.contratos = contratos;
+	}
+
+	@Override
+	public String getTipo() {
+		return "Cliente";
+	}
+
+	public void agregarContrato(Contrato contrato) {
+		if (contrato != null) {
+			boolean existe = false;
+			int i = 0;
+			while (!existe && i < contratos.size()) {
+				if (contrato.getIdContrato() != null
+						&& contrato.getIdContrato().equalsIgnoreCase(contratos.get(i).getIdContrato())) {
+					existe = true;
+				}
+				i++;
+			}
+			if (!existe) {
+				this.contratos.add(contrato);
+			}
+		}
+	}
+
+	public boolean cancelarContrato(String idContrato) {
+		boolean cancelado = false;
+		boolean encontrado = false;
+		int i = 0;
+		if (idContrato != null) {
+			while (!encontrado && i < contratos.size()) {
+				if (idContrato.equalsIgnoreCase(contratos.get(i).getIdContrato())) {
+					cancelado = contratos.get(i).cancelar();
+					encontrado = true;
+				}
+				i++;
+			}
+		}
+		return cancelado;
+	}
+
+	public float calcularDeudaTotal() {
+		float totalDeuda = 0;
+		int i = 0;
+		while (i < contratos.size()) {
+			totalDeuda += contratos.get(i).calcularDeudaPendiente();
+			i++;
+		}
+		return totalDeuda;
 	}
 }

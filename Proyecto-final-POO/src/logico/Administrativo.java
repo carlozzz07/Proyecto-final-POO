@@ -18,11 +18,7 @@ public class Administrativo extends Empleado {
 		return departamento;
 	}
 
-	public float getBono() {
-		return bono;
-	}
-
-	boolean setDepartamento(String departamento) {
+	public boolean setDepartamento(String departamento) {
 		if (departamento == null || departamento.equals("")) {
 			return false;
 		}
@@ -30,7 +26,11 @@ public class Administrativo extends Empleado {
 		return true;
 	}
 
-	boolean setBono(float bono) {
+	public float getBono() {
+		return bono;
+	}
+
+	public boolean setBono(float bono) {
 		if (bono < 0) {
 			return false;
 		}
@@ -48,5 +48,8 @@ public class Administrativo extends Empleado {
 		return getSueldoBase() + bono;
 	}
 
-	
+	@Override
+	public boolean esValido() {
+		return super.esValido() && departamento != null && !departamento.equals("") && bono >= 0;
+	}
 }

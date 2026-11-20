@@ -20,15 +20,7 @@ public class Comercial extends Empleado {
 		return porcentajeComision;
 	}
 
-	public float getMetaMensual() {
-		return metaMensual;
-	}
-
-	public float getVentasDelMes() {
-		return ventasDelMes;
-	}
-
-	boolean setPorcentajeComision(float porcentajeComision) {
+	public boolean setPorcentajeComision(float porcentajeComision) {
 		if (porcentajeComision < 0 || porcentajeComision > 100) {
 			return false;
 		}
@@ -36,7 +28,11 @@ public class Comercial extends Empleado {
 		return true;
 	}
 
-	boolean setMetaMensual(float metaMensual) {
+	public float getMetaMensual() {
+		return metaMensual;
+	}
+
+	public boolean setMetaMensual(float metaMensual) {
 		if (metaMensual < 0) {
 			return false;
 		}
@@ -44,7 +40,11 @@ public class Comercial extends Empleado {
 		return true;
 	}
 
-	boolean registrarVenta(float monto) {
+	public float getVentasDelMes() {
+		return ventasDelMes;
+	}
+
+	public boolean registrarVenta(float monto) {
 		if (monto <= 0) {
 			return false;
 		}
@@ -52,7 +52,7 @@ public class Comercial extends Empleado {
 		return true;
 	}
 
-	void reiniciarVentasDelMes() {
+	public void reiniciarVentasDelMes() {
 		ventasDelMes = 0.0f;
 	}
 

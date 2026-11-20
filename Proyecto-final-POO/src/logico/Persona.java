@@ -19,8 +19,6 @@ public abstract class Persona {
 		this.estado = true;
 	}
 
-	public abstract String getTipo();
-
 	public String getId() {
 		return id;
 	}
@@ -68,4 +66,6 @@ public abstract class Persona {
 	public void setEstado(boolean estado) {
 		this.estado = estado;
 	}
+
+	public abstract String getTipo();
 }

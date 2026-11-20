@@ -18,15 +18,7 @@ public class Television extends Servicio {
 		return cantidadCanales;
 	}
 
-	public boolean isIncluyeHD() {
-		return incluyeHD;
-	}
-
-	public int getCajillasExtra() {
-		return cajillasExtra;
-	}
-
-	boolean setCantidadCanales(int cantidadCanales) {
+	public boolean setCantidadCanales(int cantidadCanales) {
 		if (cantidadCanales <= 0) {
 			return false;
 		}
@@ -34,11 +26,19 @@ public class Television extends Servicio {
 		return true;
 	}
 
-	void setIncluyeHD(boolean incluyeHD) {
+	public boolean isIncluyeHD() {
+		return incluyeHD;
+	}
+
+	public void setIncluyeHD(boolean incluyeHD) {
 		this.incluyeHD = incluyeHD;
 	}
 
-	boolean setCajillasExtra(int cajillasExtra) {
+	public int getCajillasExtra() {
+		return cajillasExtra;
+	}
+
+	public boolean setCajillasExtra(int cajillasExtra) {
 		if (cajillasExtra < 0) {
 			return false;
 		}
