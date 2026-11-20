@@ -413,4 +413,5 @@ public class EmpresaAltice {
 				+ "\nContratos activos: " + cantidadContratos
 				+ "\nTotal facturado: RD$" + String.format("%.2f", totalFacturado);
 	}
+
 }
