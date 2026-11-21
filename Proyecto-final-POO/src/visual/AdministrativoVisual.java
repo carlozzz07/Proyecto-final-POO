@@ -42,7 +42,9 @@ public class AdministrativoVisual extends JFrame {
 		JMenuItem mntmRegCliente = new JMenuItem("Registrar");
 		mntmRegCliente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				RegCliente reg = new RegCliente(null);
+				reg.setModal(true);
+				reg.setVisible(true);
 			}
 		});
 		mnCliente.add(mntmRegCliente);
@@ -50,7 +52,9 @@ public class AdministrativoVisual extends JFrame {
 		JMenuItem mntmListCliente = new JMenuItem("Listar");
 		mntmListCliente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				ListCliente list = new ListCliente();
+				list.setModal(true);
+				list.setVisible(true);
 			}
 		});
 		mnCliente.add(mntmListCliente);
