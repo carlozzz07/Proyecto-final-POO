@@ -65,7 +65,9 @@ public class AdministrativoVisual extends JFrame {
 		JMenuItem mntmGenerarFacturas = new JMenuItem("Generar facturas del mes");
 		mntmGenerarFacturas.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				GenerarFactura generar = new GenerarFactura(AdministrativoVisual.this.administrativo);
+				generar.setModal(true);
+				generar.setVisible(true);
 			}
 		});
 		mnFacturacion.add(mntmGenerarFacturas);
