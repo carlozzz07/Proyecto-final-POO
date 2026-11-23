@@ -3,6 +3,8 @@ package logico;
 import java.time.LocalDate;
 
 public class Comercial extends Empleado {
+	
+	private static final long serialVersionUID = 1L;
 
 	private float porcentajeComision;
 	private float metaMensual;

@@ -1,11 +1,18 @@
 package logico;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class EmpresaAltice {
 
 	private static EmpresaAltice instancia = null;
+	private static final String ARCHIVO = "altice.dat";
 
 	private ArrayList<Persona> personas;
 	private ArrayList<Servicio> servicios;
@@ -478,4 +485,140 @@ public class EmpresaAltice {
 				+ "\nContratos activos: " + cantidadContratos
 				+ "\nTotal facturado: RD$" + String.format("%.2f", totalFacturado);
 	}
+	
+	public boolean guardarDatos() {
+		try {
+			File archivo = new File(ARCHIVO);
+			FileOutputStream f = new FileOutputStream(archivo);
+			ObjectOutputStream oos = new ObjectOutputStream(f);
+
+			oos.writeInt(generadorIdCliente);
+			oos.writeInt(generadorIdEmpleado);
+			oos.writeInt(generadorIdServicio);
+			oos.writeInt(generadorIdPlan);
+			oos.writeInt(generadorIdContrato);
+			oos.writeInt(generadorIdFactura);
+
+			oos.writeInt(servicios.size());
+			int i = 0;
+			while (i < servicios.size()) {
+				oos.writeObject(servicios.get(i));
+				i++;
+			}
+
+			oos.writeInt(planes.size());
+			i = 0;
+			while (i < planes.size()) {
+				oos.writeObject(planes.get(i));
+				i++;
+			}
+
+			oos.writeInt(personas.size());
+			i = 0;
+			while (i < personas.size()) {
+				oos.writeObject(personas.get(i));
+				i++;
+			}
+
+			oos.writeInt(contratos.size());
+			i = 0;
+			while (i < contratos.size()) {
+				oos.writeObject(contratos.get(i));
+				i++;
+			}
+
+			oos.writeInt(facturas.size());
+			i = 0;
+			while (i < facturas.size()) {
+				oos.writeObject(facturas.get(i));
+				i++;
+			}
+
+			oos.close();
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean cargarDatos() {
+		File archivo = new File(ARCHIVO);
+		if (!archivo.exists()) {
+			return false;
+		}
+		try {
+			FileInputStream f = new FileInputStream(archivo);
+			ObjectInputStream ois = new ObjectInputStream(f);
+
+			int idCliente = ois.readInt();
+			int idEmpleado = ois.readInt();
+			int idServicio = ois.readInt();
+			int idPlan = ois.readInt();
+			int idContrato = ois.readInt();
+			int idFactura = ois.readInt();
+
+			ArrayList<Servicio> serviciosLeidos = new ArrayList<>();
+			int cantidad = ois.readInt();
+			int i = 0;
+			while (i < cantidad) {
+				serviciosLeidos.add((Servicio) ois.readObject());
+				i++;
+			}
+
+			ArrayList<Plan> planesLeidos = new ArrayList<>();
+			cantidad = ois.readInt();
+			i = 0;
+			while (i < cantidad) {
+				planesLeidos.add((Plan) ois.readObject());
+				i++;
+			}
+
+			ArrayList<Persona> personasLeidas = new ArrayList<>();
+			cantidad = ois.readInt();
+			i = 0;
+			while (i < cantidad) {
+				personasLeidas.add((Persona) ois.readObject());
+				i++;
+			}
+
+			ArrayList<Contrato> contratosLeidos = new ArrayList<>();
+			cantidad = ois.readInt();
+			i = 0;
+			while (i < cantidad) {
+				contratosLeidos.add((Contrato) ois.readObject());
+				i++;
+			}
+
+			ArrayList<Factura> facturasLeidas = new ArrayList<>();
+			cantidad = ois.readInt();
+			i = 0;
+			while (i < cantidad) {
+				facturasLeidas.add((Factura) ois.readObject());
+				i++;
+			}
+
+			ois.close();
+
+			generadorIdCliente = idCliente;
+			generadorIdEmpleado = idEmpleado;
+			generadorIdServicio = idServicio;
+			generadorIdPlan = idPlan;
+			generadorIdContrato = idContrato;
+			generadorIdFactura = idFactura;
+			this.servicios = serviciosLeidos;
+			this.planes = planesLeidos;
+			this.personas = personasLeidas;
+			this.contratos = contratosLeidos;
+			this.facturas = facturasLeidas;
+			System.out.println("Archivo guardado en: " + archivo.getAbsolutePath());
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}	
 }

@@ -3,6 +3,8 @@ package logico;
 import java.util.ArrayList;
 
 public class Cliente extends Persona {
+	
+	private static final long serialVersionUID = 1L;
 
 	private ArrayList<Contrato> contratos;
 

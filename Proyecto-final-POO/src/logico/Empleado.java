@@ -3,6 +3,8 @@ package logico;
 import java.time.LocalDate;
 
 public abstract class Empleado extends Persona {
+	
+	private static final long serialVersionUID = 1L;
 
 	private LocalDate fechaEntrada;
 	private float sueldoBase;

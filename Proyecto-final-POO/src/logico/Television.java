@@ -1,6 +1,8 @@
 package logico;
 
 public class Television extends Servicio {
+	
+	private static final long serialVersionUID = 1L;
 
 	private int cantidadCanales;
 	private boolean incluyeHD;

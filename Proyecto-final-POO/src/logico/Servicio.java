@@ -1,8 +1,11 @@
 package logico;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public abstract class Servicio {
+public abstract class Servicio implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String idServicio;
 	private String nombre;

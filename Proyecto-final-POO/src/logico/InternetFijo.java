@@ -1,6 +1,8 @@
 package logico;
 
 public class InternetFijo extends Servicio {
+	
+	private static final long serialVersionUID = 1L;
 
 	private int megasBajada;
 	private int megasSubida;

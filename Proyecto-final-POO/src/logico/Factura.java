@@ -1,8 +1,11 @@
 package logico;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Factura {
+public class Factura implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String idFactura;
 	private String ncf;

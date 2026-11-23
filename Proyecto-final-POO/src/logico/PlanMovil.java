@@ -1,6 +1,8 @@
 package logico;
 
 public class PlanMovil extends Servicio {
+	
+	private static final long serialVersionUID = 1L;
 
 	private int cantidadGigas;
 	private int minutosLibres;

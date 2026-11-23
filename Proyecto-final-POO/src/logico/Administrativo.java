@@ -3,6 +3,8 @@ package logico;
 import java.time.LocalDate;
 
 public class Administrativo extends Empleado {
+	
+	private static final long serialVersionUID = 1L;
 
 	private String departamento;
 	private float bono;
