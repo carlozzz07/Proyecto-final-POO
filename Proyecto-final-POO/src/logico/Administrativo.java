@@ -8,8 +8,9 @@ public class Administrativo extends Empleado {
 	private float bono;
 
 	public Administrativo(String id, String cedula, String nombre, String telefono, String direccion,
-			LocalDate fechaEntrada, float sueldoBase, String departamento, float bono) {
-		super(id, cedula, nombre, telefono, direccion, fechaEntrada, sueldoBase);
+			String usuario, String contrasena, LocalDate fechaEntrada, float sueldoBase,
+			String departamento, float bono) {
+		super(id, cedula, nombre, telefono, direccion, usuario, contrasena, fechaEntrada, sueldoBase);
 		this.departamento = departamento;
 		this.bono = bono;
 	}

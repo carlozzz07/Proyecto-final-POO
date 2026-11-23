@@ -8,8 +8,8 @@ public abstract class Empleado extends Persona {
 	private float sueldoBase;
 
 	protected Empleado(String id, String cedula, String nombre, String telefono, String direccion,
-			LocalDate fechaEntrada, float sueldoBase) {
-		super(id, cedula, nombre, telefono, direccion);
+			String usuario, String contrasena, LocalDate fechaEntrada, float sueldoBase) {
+		super(id, cedula, nombre, telefono, direccion, usuario, contrasena);
 		this.fechaEntrada = fechaEntrada;
 		this.sueldoBase = sueldoBase;
 	}
@@ -45,6 +45,8 @@ public abstract class Empleado extends Persona {
 		return getId() != null && !getId().equals("")
 				&& getCedula() != null && !getCedula().equals("")
 				&& getNombre() != null && !getNombre().equals("")
+				&& getUsuario() != null && !getUsuario().equals("")
+				&& getContrasena() != null && !getContrasena().equals("")
 				&& fechaEntrada != null && !fechaEntrada.isAfter(LocalDate.now())
 				&& sueldoBase > 0;
 	}

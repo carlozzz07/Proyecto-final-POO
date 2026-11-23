@@ -115,7 +115,9 @@ public class AdministrativoVisual extends JFrame {
 		contentPane.add(panelSur, BorderLayout.SOUTH);
 
 		String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		JLabel lblEstado = new JLabel("Administrativo:  |   Departamento:    |   Fecha: 20/11/2026");
+		JLabel lblEstado = new JLabel("Administrativo: " + administrativo.getNombre()
+				+ "   |   Departamento: " + administrativo.getDepartamento()
+				+ "   |   Fecha: " + fecha);
 		panelSur.add(lblEstado);
 	}
 }

@@ -151,7 +151,7 @@ public class ListCliente extends JDialog {
 			int option = JOptionPane.showConfirmDialog(null, "¿Desea " + accion + " al cliente " + cliente.getNombre() + "?",
 					"Confirmación", JOptionPane.YES_NO_OPTION);
 			if (option == JOptionPane.YES_OPTION) {
-				if (EmpresaAltice.getInstance().cambiarEstadoCliente(cliente.getId(), !cliente.isEstado())) {
+				if (EmpresaAltice.getInstance().cambiarEstadoCliente(cliente.getCedula(), !cliente.isEstado())) {
 					loadClientes();
 					cliente = null;
 					updatebtn.setEnabled(false);

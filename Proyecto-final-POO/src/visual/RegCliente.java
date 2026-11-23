@@ -10,12 +10,14 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import logico.Cliente;
 import logico.EmpresaAltice;
+import logico.Persona;
 
 public class RegCliente extends JDialog {
 
@@ -25,6 +27,8 @@ public class RegCliente extends JDialog {
 	private JTextField txtNombre;
 	private JTextField txtTelefono;
 	private JTextField txtDireccion;
+	private JTextField txtUsuario;
+	private JPasswordField pwdContrasena;
 	private Cliente cliente = null;
 
 	public RegCliente(Cliente aux) {
@@ -34,7 +38,7 @@ public class RegCliente extends JDialog {
 		} else {
 			setTitle("Registrar Cliente");
 		}
-		setBounds(100, 100, 570, 320);
+		setBounds(100, 100, 570, 380);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -91,6 +95,23 @@ public class RegCliente extends JDialog {
 			txtDireccion.setBounds(279, 146, 251, 22);
 			panel.add(txtDireccion);
 			txtDireccion.setColumns(10);
+
+			JLabel lblUsuario = new JLabel("Usuario (opcional):");
+			lblUsuario.setBounds(12, 181, 200, 16);
+			panel.add(lblUsuario);
+
+			txtUsuario = new JTextField();
+			txtUsuario.setBounds(12, 204, 239, 22);
+			panel.add(txtUsuario);
+			txtUsuario.setColumns(10);
+
+			JLabel lblContrasena = new JLabel("Contraseña (opcional):");
+			lblContrasena.setBounds(279, 181, 200, 16);
+			panel.add(lblContrasena);
+
+			pwdContrasena = new JPasswordField();
+			pwdContrasena.setBounds(279, 204, 251, 22);
+			panel.add(pwdContrasena);
 		}
 		{
 			JPanel buttonPane = new JPanel();
@@ -124,6 +145,9 @@ public class RegCliente extends JDialog {
 	}
 
 	private boolean estaVacio(String texto) {
+		if (texto == null) {
+			return true;
+		}
 		int i = 0;
 		while (i < texto.length()) {
 			if (texto.charAt(i) != ' ') {
@@ -150,6 +174,8 @@ public class RegCliente extends JDialog {
 		String nombre = txtNombre.getText();
 		String telefono = txtTelefono.getText();
 		String direccion = txtDireccion.getText();
+		String usuario = txtUsuario.getText();
+		String contrasena = new String(pwdContrasena.getPassword());
 
 		if (estaVacio(nombre) || estaVacio(direccion)) {
 			JOptionPane.showMessageDialog(null, "Debe llenar el nombre y la dirección", "Error", JOptionPane.ERROR_MESSAGE);
@@ -163,21 +189,41 @@ public class RegCliente extends JDialog {
 			JOptionPane.showMessageDialog(null, "El teléfono debe tener 10 dígitos, sin guiones", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
+		if (estaVacio(usuario) != estaVacio(contrasena)) {
+			JOptionPane.showMessageDialog(null, "Si asigna acceso al cliente, debe llenar usuario y contraseña (o dejar ambos en blanco)",
+					"Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		if (estaVacio(usuario)) {
+			usuario = "";
+			contrasena = "";
+		}
 
 		EmpresaAltice empresa = EmpresaAltice.getInstance();
+		if (!usuario.equals("")) {
+			Persona existente = empresa.buscarPersonaByUsuario(usuario);
+			if (existente != null && existente != cliente) {
+				JOptionPane.showMessageDialog(null, "Ese nombre de usuario ya está en uso", "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		}
+
 		if (cliente == null) {
 			if (empresa.buscarClienteByCedula(cedula) != null) {
 				JOptionPane.showMessageDialog(null, "Ya existe un cliente con esa cédula", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			Cliente nuevo = new Cliente(txtId.getText(), cedula, nombre, telefono, direccion);
+			Cliente nuevo = new Cliente(txtId.getText(), cedula, nombre, telefono, direccion, usuario, contrasena);
 			empresa.registrarPersona(nuevo);
+			ListCliente.loadClientes();
 			JOptionPane.showMessageDialog(null, "Registro satisfactorio", "Información", JOptionPane.INFORMATION_MESSAGE);
 			clean();
 		} else {
 			cliente.setNombre(nombre);
 			cliente.setTelefono(telefono);
 			cliente.setDireccion(direccion);
+			cliente.setUsuario(usuario);
+			cliente.setContrasena(contrasena);
 			ListCliente.loadClientes();
 			JOptionPane.showMessageDialog(null, "Modificación satisfactoria", "Información", JOptionPane.INFORMATION_MESSAGE);
 			dispose();
@@ -192,6 +238,8 @@ public class RegCliente extends JDialog {
 			txtNombre.setText(cliente.getNombre());
 			txtTelefono.setText(cliente.getTelefono());
 			txtDireccion.setText(cliente.getDireccion());
+			txtUsuario.setText(cliente.getUsuario());
+			pwdContrasena.setText(cliente.getContrasena());
 		} else {
 			clean();
 		}
@@ -203,5 +251,7 @@ public class RegCliente extends JDialog {
 		txtNombre.setText("");
 		txtTelefono.setText("");
 		txtDireccion.setText("");
+		txtUsuario.setText("");
+		pwdContrasena.setText("");
 	}
 }

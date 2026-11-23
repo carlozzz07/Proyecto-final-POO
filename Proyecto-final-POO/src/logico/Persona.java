@@ -7,15 +7,28 @@ public abstract class Persona {
 	protected String nombre;
 	protected String telefono;
 	protected String direccion;
+	protected String usuario;
+	protected String contrasena;
 	protected boolean estado;
 
-	public Persona(String id, String cedula, String nombre, String telefono, String direccion) {
+	public Persona(String id, String cedula, String nombre, String telefono, String direccion,
+			String usuario, String contrasena) {
 		super();
 		this.id = id;
 		this.cedula = cedula;
 		this.nombre = nombre;
 		this.telefono = telefono;
 		this.direccion = direccion;
+		if (usuario != null) {
+			this.usuario = usuario;
+		} else {
+			this.usuario = "";
+		}
+		if (contrasena != null) {
+			this.contrasena = contrasena;
+		} else {
+			this.contrasena = "";
+		}
 		this.estado = true;
 	}
 
@@ -57,6 +70,30 @@ public abstract class Persona {
 
 	public void setDireccion(String direccion) {
 		this.direccion = direccion;
+	}
+
+	public String getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(String usuario) {
+		if (usuario != null) {
+			this.usuario = usuario;
+		} else {
+			this.usuario = "";
+		}
+	}
+
+	public String getContrasena() {
+		return contrasena;
+	}
+
+	public void setContrasena(String contrasena) {
+		if (contrasena != null) {
+			this.contrasena = contrasena;
+		} else {
+			this.contrasena = "";
+		}
 	}
 
 	public boolean isEstado() {

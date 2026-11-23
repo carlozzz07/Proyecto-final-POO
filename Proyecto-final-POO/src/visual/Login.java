@@ -17,9 +17,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import logico.Administrativo;
+import logico.Cliente;
 import logico.Comercial;
-import logico.Empleado;
 import logico.EmpresaAltice;
+import logico.Persona;
 
 public class Login extends JFrame {
 
@@ -86,7 +87,7 @@ public class Login extends JFrame {
 				JButton btnEntrar = new JButton("Entrar");
 				btnEntrar.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-				
+						iniciarSesion();
 					}
 				});
 				buttonPane.add(btnEntrar);
@@ -101,6 +102,39 @@ public class Login extends JFrame {
 				});
 				buttonPane.add(btnSalir);
 			}
+		}
+	}
+
+	private void iniciarSesion() {
+		String usuario = txtUsuario.getText();
+		String contrasena = new String(pwdContrasena.getPassword());
+
+		if (estaVacio(usuario) || estaVacio(contrasena)) {
+			JOptionPane.showMessageDialog(null, "Debe ingresar usuario y contraseña", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		EmpresaAltice empresa = EmpresaAltice.getInstance();
+		Persona persona = empresa.iniciarSesion(usuario, contrasena);
+
+		if (persona == null) {
+			JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrectos", "Error", JOptionPane.ERROR_MESSAGE);
+			pwdContrasena.setText("");
+			return;
+		}
+
+		if (persona instanceof Administrativo) {
+			AdministrativoVisual ventana = new AdministrativoVisual((Administrativo) persona);
+			ventana.setVisible(true);
+			dispose();
+		} else if (persona instanceof Comercial) {
+			ComercialVisual ventana = new ComercialVisual((Comercial) persona);
+			ventana.setVisible(true);
+			dispose();
+		} else if (persona instanceof Cliente) {
+			ClienteVisual ventana = new ClienteVisual((Cliente) persona);
+			ventana.setVisible(true);
+			dispose();
 		}
 	}
 

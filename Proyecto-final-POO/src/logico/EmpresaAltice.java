@@ -27,6 +27,16 @@ public class EmpresaAltice {
 		this.planes = new ArrayList<>();
 		this.contratos = new ArrayList<>();
 		this.facturas = new ArrayList<>();
+
+		Administrativo adminInicial = new Administrativo("E-" + generadorIdEmpleado, "00000000001",
+				"Administrador General", "8090000001", "Oficina Central", "admin", "admin",
+				LocalDate.now(), 50000, "Administracion", 5000);
+		registrarPersona(adminInicial);
+
+		Comercial comercialInicial = new Comercial("E-" + generadorIdEmpleado, "00000000002",
+				"Comercial Inicial", "8090000002", "Oficina Central", "comercial", "1234",
+				LocalDate.now(), 25000, 10, 50000);
+		registrarPersona(comercialInicial);
 	}
 
 	public static EmpresaAltice getInstance() {
@@ -76,8 +86,63 @@ public class EmpresaAltice {
 		this.facturas = facturas;
 	}
 
+	private boolean estaVacio(String texto) {
+		if (texto == null) {
+			return true;
+		}
+		int i = 0;
+		while (i < texto.length()) {
+			if (texto.charAt(i) != ' ') {
+				return false;
+			}
+			i++;
+		}
+		return true;
+	}
+
+	public Persona iniciarSesion(String usuario, String contrasena) {
+		Persona personaAux = null;
+		if (!estaVacio(usuario) && !estaVacio(contrasena)) {
+			int i = 0;
+			boolean encontrado = false;
+			while (!encontrado && i < personas.size()) {
+				Persona persona = personas.get(i);
+				if (persona.isEstado()
+						&& !estaVacio(persona.getUsuario())
+						&& !estaVacio(persona.getContrasena())
+						&& usuario.equalsIgnoreCase(persona.getUsuario())
+						&& contrasena.equals(persona.getContrasena())) {
+					personaAux = persona;
+					encontrado = true;
+				}
+				i++;
+			}
+		}
+		return personaAux;
+	}
+
+	public Persona buscarPersonaByUsuario(String usuario) {
+		Persona personaAux = null;
+		if (!estaVacio(usuario)) {
+			int i = 0;
+			boolean encontrado = false;
+			while (!encontrado && i < personas.size()) {
+				Persona persona = personas.get(i);
+				if (!estaVacio(persona.getUsuario()) && usuario.equalsIgnoreCase(persona.getUsuario())) {
+					personaAux = persona;
+					encontrado = true;
+				}
+				i++;
+			}
+		}
+		return personaAux;
+	}
+
 	public void registrarPersona(Persona persona) {
 		if (persona != null) {
+			if (!estaVacio(persona.getUsuario()) && buscarPersonaByUsuario(persona.getUsuario()) != null) {
+				return;
+			}
 			if (persona instanceof Cliente && buscarClienteByCedula(persona.getCedula()) == null) {
 				this.personas.add(persona);
 				generadorIdCliente++;
@@ -413,5 +478,4 @@ public class EmpresaAltice {
 				+ "\nContratos activos: " + cantidadContratos
 				+ "\nTotal facturado: RD$" + String.format("%.2f", totalFacturado);
 	}
-
 }

@@ -6,8 +6,14 @@ public class Cliente extends Persona {
 
 	private ArrayList<Contrato> contratos;
 
+	public Cliente(String id, String cedula, String nombre, String telefono, String direccion,
+			String usuario, String contrasena) {
+		super(id, cedula, nombre, telefono, direccion, usuario, contrasena);
+		this.contratos = new ArrayList<>();
+	}
+
 	public Cliente(String id, String cedula, String nombre, String telefono, String direccion) {
-		super(id, cedula, nombre, telefono, direccion);
+		super(id, cedula, nombre, telefono, direccion, "", "");
 		this.contratos = new ArrayList<>();
 	}
 

@@ -101,7 +101,7 @@ public class ComercialVisual extends JFrame {
 		panelSur.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		contentPane.add(panelSur, BorderLayout.SOUTH);
 
-		JLabel lblEstado = new JLabel(".");
+		JLabel lblEstado = new JLabel(textoEstado());
 		panelSur.add(lblEstado);
 	}
 

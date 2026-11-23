@@ -9,8 +9,9 @@ public class Comercial extends Empleado {
 	private float ventasDelMes;
 
 	public Comercial(String id, String cedula, String nombre, String telefono, String direccion,
-			LocalDate fechaEntrada, float sueldoBase, float porcentajeComision, float metaMensual) {
-		super(id, cedula, nombre, telefono, direccion, fechaEntrada, sueldoBase);
+			String usuario, String contrasena, LocalDate fechaEntrada, float sueldoBase,
+			float porcentajeComision, float metaMensual) {
+		super(id, cedula, nombre, telefono, direccion, usuario, contrasena, fechaEntrada, sueldoBase);
 		this.porcentajeComision = porcentajeComision;
 		this.metaMensual = metaMensual;
 		this.ventasDelMes = 0.0f;

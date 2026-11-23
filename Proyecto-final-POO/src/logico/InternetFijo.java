@@ -139,4 +139,6 @@ public class InternetFijo extends Servicio {
 		return super.esValido() && megasBajada > 0 && megasSubida > 0
 				&& limiteDatosGB > 0 && megasBajadaReducida > 0 && megasBajadaReducida <= megasBajada;
 	}
+	
+	
 }
