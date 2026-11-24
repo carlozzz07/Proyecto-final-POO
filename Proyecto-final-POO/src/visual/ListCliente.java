@@ -1,7 +1,13 @@
 package visual;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -10,6 +16,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -20,8 +27,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import logico.Cliente;
@@ -29,7 +35,7 @@ import logico.EmpresaAltice;
 
 public class ListCliente extends JDialog {
 
-	private final JPanel contentPanel = new JPanel();
+	private JPanel contentPane;
 	private JTable table;
 	public static DefaultTableModel model;
 	public static Object row[];
@@ -37,109 +43,276 @@ public class ListCliente extends JDialog {
 	private JButton updatebtn;
 	private JButton estadobtn;
 	private Cliente cliente = null;
+	private Color negro = new Color(17, 17, 17);
+	private Color grisOscuro = new Color(51, 51, 51);
+	private Color grisMedio = new Color(110, 110, 110);
+	private Color grisSuave = new Color(170, 170, 170);
+	private Color grisBorde = new Color(220, 220, 220);
+	private Color grisClaro = new Color(242, 242, 242);
+	private Color blanco = Color.WHITE;
 
 	public ListCliente() {
-		setTitle("Listado de Clientes");
-		setBounds(100, 100, 850, 449);
+		setTitle("Altice - Listado de Clientes");
+		setBounds(100, 100, 960, 560);
 		setLocationRelativeTo(null);
-		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		contentPanel.setLayout(new BorderLayout(0, 0));
-		{
-			JPanel panel = new JPanel();
-			panel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			contentPanel.add(panel, BorderLayout.CENTER);
-			panel.setLayout(new BorderLayout(0, 0));
-			{
-				JPanel panelBusqueda = new JPanel();
-				panelBusqueda.setLayout(new FlowLayout(FlowLayout.LEFT));
-				panel.add(panelBusqueda, BorderLayout.NORTH);
 
-				JLabel lblBuscar = new JLabel("Buscar (nombre o cédula):");
-				panelBusqueda.add(lblBuscar);
+		contentPane = new JPanel();
+		contentPane.setBackground(blanco);
+		contentPane.setLayout(new BorderLayout(0, 0));
+		setContentPane(contentPane);
 
-				txtBuscar = new JTextField();
-				txtBuscar.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyReleased(KeyEvent e) {
-						loadClientes();
-						cliente = null;
-						updatebtn.setEnabled(false);
-						estadobtn.setEnabled(false);
-					}
-				});
-				panelBusqueda.add(txtBuscar);
-				txtBuscar.setColumns(20);
+		contentPane.add(crearEncabezado(), BorderLayout.NORTH);
+		contentPane.add(crearCentro(), BorderLayout.CENTER);
+		contentPane.add(crearBotones(), BorderLayout.SOUTH);
+		loadClientes();
+	}
+
+	private JPanel crearEncabezado() {
+		JPanel encabezado = new JPanel();
+		encabezado.setBackground(negro);
+		encabezado.setLayout(new BorderLayout(0, 0));
+		encabezado.setBorder(BorderFactory.createEmptyBorder(18, 30, 18, 30));
+
+		JPanel textos = new JPanel();
+		textos.setOpaque(false);
+		textos.setLayout(new GridLayout(2, 1, 0, 2));
+		encabezado.add(textos, BorderLayout.WEST);
+
+		JLabel lblTitulo = new JLabel("Listado de clientes");
+		lblTitulo.setForeground(blanco);
+		lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+		textos.add(lblTitulo);
+
+		JLabel lblSubtitulo = new JLabel("Seleccione un cliente para actualizarlo o cambiar su estado");
+		lblSubtitulo.setForeground(grisSuave);
+		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		textos.add(lblSubtitulo);
+
+		JLabel lblLogo = new JLabel("Altice");
+		lblLogo.setForeground(blanco);
+		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+		encabezado.add(lblLogo, BorderLayout.EAST);
+		return encabezado;
+	}
+
+	private JPanel crearCentro() {
+		JPanel centro = new JPanel();
+		centro.setBackground(blanco);
+		centro.setBorder(BorderFactory.createEmptyBorder(20, 30, 16, 30));
+		centro.setLayout(new BorderLayout(0, 14));
+
+		JPanel panelBusqueda = new JPanel();
+		panelBusqueda.setOpaque(false);
+		panelBusqueda.setLayout(new BorderLayout(14, 0));
+		centro.add(panelBusqueda, BorderLayout.NORTH);
+
+		JLabel lblBuscar = new JLabel("BUSCAR (NOMBRE O CÉDULA)");
+		lblBuscar.setForeground(grisOscuro);
+		lblBuscar.setFont(new Font("Segoe UI", Font.BOLD, 11));
+		panelBusqueda.add(lblBuscar, BorderLayout.WEST);
+
+		txtBuscar = new JTextField();
+		txtBuscar.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		txtBuscar.setForeground(negro);
+		txtBuscar.setBackground(grisClaro);
+		txtBuscar.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(0, 0, 2, 0, negro),
+				BorderFactory.createEmptyBorder(6, 10, 6, 10)));
+		txtBuscar.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				loadClientes();
+				cliente = null;
+				updatebtn.setEnabled(false);
+				estadobtn.setEnabled(false);
 			}
-			{
-				JScrollPane scrollPane = new JScrollPane();
-				scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-				panel.add(scrollPane, BorderLayout.CENTER);
-				{
-					String headers[] = {"Id", "Cédula", "Nombre", "Teléfono", "Dirección", "Deuda", "Estado"};
-					model = new DefaultTableModel() {
-						public boolean isCellEditable(int fila, int columna) {
-							return false;
-						}
-					};
-					model.setColumnIdentifiers(headers);
-					table = new JTable();
-					table.addMouseListener(new MouseAdapter() {
-						@Override
-						public void mouseClicked(MouseEvent e) {
-							int index = table.getSelectedRow();
-							if (index > -1) {
-								updatebtn.setEnabled(true);
-								estadobtn.setEnabled(true);
-								cliente = EmpresaAltice.getInstance().buscarClienteByCedula(model.getValueAt(index, 1).toString());
-							}
-						}
-					});
-					table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-					table.setModel(model);
-					scrollPane.setViewportView(table);
+		});
+		panelBusqueda.add(txtBuscar, BorderLayout.CENTER);
+
+		String headers[] = {"Id", "Cédula", "Nombre", "Teléfono", "Dirección", "Deuda", "Estado"};
+		model = new DefaultTableModel() {
+			public boolean isCellEditable(int fila, int columna) {
+				return false;
+			}
+		};
+		model.setColumnIdentifiers(headers);
+
+		table = new JTable();
+		table.setModel(model);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setRowHeight(32);
+		table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		table.setShowGrid(false);
+		table.setIntercellSpacing(new Dimension(0, 0));
+		table.setFillsViewportHeight(true);
+		table.setBackground(blanco);
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int index = table.getSelectedRow();
+				if (index > -1) {
+					updatebtn.setEnabled(true);
+					estadobtn.setEnabled(true);
+					cliente = EmpresaAltice.getInstance().buscarClienteByCedula(model.getValueAt(index, 1).toString());
 				}
 			}
+		});
+		estilizarTabla();
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setBorder(BorderFactory.createLineBorder(grisBorde, 1));
+		scrollPane.getViewport().setBackground(blanco);
+		scrollPane.setViewportView(table);
+		centro.add(scrollPane, BorderLayout.CENTER);
+		return centro;
+	}
+
+	private void estilizarTabla() {
+		DefaultTableCellRenderer encabezadoRenderer = new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable tabla, Object valor, boolean seleccionado,
+					boolean foco, int fila, int columna) {
+				super.getTableCellRendererComponent(tabla, valor, false, false, fila, columna);
+				setBackground(negro);
+				setForeground(blanco);
+				setFont(new Font("Segoe UI", Font.BOLD, 12));
+				setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+				return this;
+			}
+		};
+		table.getTableHeader().setDefaultRenderer(encabezadoRenderer);
+		table.getTableHeader().setPreferredSize(new Dimension(0, 36));
+		table.getTableHeader().setReorderingAllowed(false);
+
+		DefaultTableCellRenderer celdaRenderer = new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable tabla, Object valor, boolean seleccionado,
+					boolean foco, int fila, int columna) {
+				super.getTableCellRendererComponent(tabla, valor, seleccionado, false, fila, columna);
+				setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+				if (seleccionado) {
+					setBackground(negro);
+					setForeground(blanco);
+				} else {
+					if (fila % 2 == 0) {
+						setBackground(blanco);
+					} else {
+						setBackground(grisClaro);
+					}
+					setForeground(negro);
+					if (columna == 6 && "Inactivo".equals(valor)) {
+						setForeground(grisSuave);
+					}
+				}
+				if (columna == 5) {
+					setHorizontalAlignment(RIGHT);
+				} else {
+					setHorizontalAlignment(LEFT);
+				}
+				return this;
+			}
+		};
+		int i = 0;
+		while (i < table.getColumnCount()) {
+			table.getColumnModel().getColumn(i).setCellRenderer(celdaRenderer);
+			i++;
 		}
-		{
-			JPanel buttonPane = new JPanel();
-			buttonPane.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			getContentPane().add(buttonPane, BorderLayout.SOUTH);
-			{
-				updatebtn = new JButton("Actualizar");
-				updatebtn.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						RegCliente act = new RegCliente(cliente);
-						act.setModal(true);
-						act.setVisible(true);
-					}
-				});
-				updatebtn.setEnabled(false);
-				buttonPane.add(updatebtn);
+		table.getColumnModel().getColumn(0).setPreferredWidth(60);
+		table.getColumnModel().getColumn(1).setPreferredWidth(110);
+		table.getColumnModel().getColumn(2).setPreferredWidth(200);
+		table.getColumnModel().getColumn(3).setPreferredWidth(100);
+		table.getColumnModel().getColumn(4).setPreferredWidth(200);
+		table.getColumnModel().getColumn(5).setPreferredWidth(90);
+		table.getColumnModel().getColumn(6).setPreferredWidth(80);
+	}
+
+	private JPanel crearBotones() {
+		JPanel barra = new JPanel();
+		barra.setBackground(grisClaro);
+		barra.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, grisBorde));
+		barra.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 14));
+
+		JButton cancelButton = new JButton("Cerrar");
+		estilizarBotonContorno(cancelButton);
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
 			}
-			{
-				estadobtn = new JButton("Activar / Desactivar");
-				estadobtn.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						cambiarEstado();
-					}
-				});
-				estadobtn.setEnabled(false);
-				buttonPane.add(estadobtn);
+		});
+		barra.add(cancelButton);
+
+		estadobtn = new JButton("Activar / Desactivar");
+		estilizarBotonContorno(estadobtn);
+		estadobtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cambiarEstado();
 			}
-			{
-				JButton cancelButton = new JButton("Cerrar");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						dispose();
-					}
-				});
-				buttonPane.add(cancelButton);
+		});
+		estadobtn.setEnabled(false);
+		barra.add(estadobtn);
+
+		updatebtn = new JButton("Actualizar");
+		estilizarBotonPrincipal(updatebtn);
+		updatebtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RegCliente act = new RegCliente(cliente);
+				act.setModal(true);
+				act.setVisible(true);
 			}
-		}
-		loadClientes();
+		});
+		updatebtn.setEnabled(false);
+		barra.add(updatebtn);
+		return barra;
+	}
+
+	private void estilizarBotonPrincipal(JButton boton) {
+		boton.setBackground(negro);
+		boton.setForeground(blanco);
+		boton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+		boton.setFocusPainted(false);
+		boton.setBorderPainted(false);
+		boton.setOpaque(true);
+		boton.setBorder(BorderFactory.createEmptyBorder(9, 26, 9, 26));
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				if (boton.isEnabled()) {
+					boton.setBackground(grisOscuro);
+				}
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setBackground(negro);
+			}
+		});
+	}
+
+	private void estilizarBotonContorno(JButton boton) {
+		boton.setBackground(blanco);
+		boton.setForeground(grisOscuro);
+		boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		boton.setFocusPainted(false);
+		boton.setOpaque(true);
+		boton.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(grisMedio, 1),
+				BorderFactory.createEmptyBorder(8, 24, 8, 24)));
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				if (boton.isEnabled()) {
+					boton.setBackground(grisBorde);
+				}
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setBackground(blanco);
+			}
+		});
 	}
 
 	private void cambiarEstado() {

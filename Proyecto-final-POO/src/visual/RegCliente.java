@@ -1,10 +1,17 @@
 package visual;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -12,8 +19,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 
 import logico.Cliente;
 import logico.EmpresaAltice;
@@ -21,7 +26,7 @@ import logico.Persona;
 
 public class RegCliente extends JDialog {
 
-	private final JPanel contentPanel = new JPanel();
+	private JPanel contentPane;
 	private JTextField txtId;
 	private JTextField txtCedula;
 	private JTextField txtNombre;
@@ -30,118 +35,228 @@ public class RegCliente extends JDialog {
 	private JTextField txtUsuario;
 	private JPasswordField pwdContrasena;
 	private Cliente cliente = null;
+	private Color negro = new Color(17, 17, 17);
+	private Color grisOscuro = new Color(51, 51, 51);
+	private Color grisMedio = new Color(110, 110, 110);
+	private Color grisSuave = new Color(170, 170, 170);
+	private Color grisBorde = new Color(220, 220, 220);
+	private Color grisClaro = new Color(242, 242, 242);
+	private Color blanco = Color.WHITE;
 
 	public RegCliente(Cliente aux) {
+		String titulo = "Registrar cliente";
+		String subtitulo = "Complete los datos del nuevo cliente";
 		if (aux != null) {
 			cliente = aux;
-			setTitle("Modificar Cliente");
+			titulo = "Modificar cliente";
+			subtitulo = "Actualice los datos del cliente";
+			setTitle("Altice - Modificar Cliente");
 		} else {
-			setTitle("Registrar Cliente");
+			setTitle("Altice - Registrar Cliente");
 		}
-		setBounds(100, 100, 570, 380);
+		setBounds(100, 100, 600, 590);
 		setLocationRelativeTo(null);
-		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		contentPanel.setLayout(new BorderLayout(0, 0));
-		{
-			JPanel panel = new JPanel();
-			panel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			contentPanel.add(panel, BorderLayout.CENTER);
-			panel.setLayout(null);
+		setResizable(false);
 
-			JLabel lblId = new JLabel("Id:");
-			lblId.setBounds(12, 13, 88, 16);
-			panel.add(lblId);
+		contentPane = new JPanel();
+		contentPane.setBackground(blanco);
+		contentPane.setLayout(new BorderLayout(0, 0));
+		setContentPane(contentPane);
 
-			txtId = new JTextField();
-			txtId.setEditable(false);
-			txtId.setBounds(12, 32, 239, 22);
-			panel.add(txtId);
-			txtId.setColumns(10);
-
-			JLabel lblCedula = new JLabel("Cédula (11 dígitos):");
-			lblCedula.setBounds(279, 13, 200, 16);
-			panel.add(lblCedula);
-
-			txtCedula = new JTextField();
-			txtCedula.setBounds(279, 32, 251, 22);
-			panel.add(txtCedula);
-			txtCedula.setColumns(10);
-
-			JLabel lblNombre = new JLabel("Nombre completo:");
-			lblNombre.setBounds(12, 67, 150, 16);
-			panel.add(lblNombre);
-
-			txtNombre = new JTextField();
-			txtNombre.setBounds(12, 89, 518, 22);
-			panel.add(txtNombre);
-			txtNombre.setColumns(10);
-
-			JLabel lblTelefono = new JLabel("Teléfono (10 dígitos):");
-			lblTelefono.setBounds(12, 122, 200, 16);
-			panel.add(lblTelefono);
-
-			txtTelefono = new JTextField();
-			txtTelefono.setBounds(12, 146, 239, 22);
-			panel.add(txtTelefono);
-			txtTelefono.setColumns(10);
-
-			JLabel lblDireccion = new JLabel("Dirección:");
-			lblDireccion.setBounds(279, 122, 100, 16);
-			panel.add(lblDireccion);
-
-			txtDireccion = new JTextField();
-			txtDireccion.setBounds(279, 146, 251, 22);
-			panel.add(txtDireccion);
-			txtDireccion.setColumns(10);
-
-			JLabel lblUsuario = new JLabel("Usuario (opcional):");
-			lblUsuario.setBounds(12, 181, 200, 16);
-			panel.add(lblUsuario);
-
-			txtUsuario = new JTextField();
-			txtUsuario.setBounds(12, 204, 239, 22);
-			panel.add(txtUsuario);
-			txtUsuario.setColumns(10);
-
-			JLabel lblContrasena = new JLabel("Contraseña (opcional):");
-			lblContrasena.setBounds(279, 181, 200, 16);
-			panel.add(lblContrasena);
-
-			pwdContrasena = new JPasswordField();
-			pwdContrasena.setBounds(279, 204, 251, 22);
-			panel.add(pwdContrasena);
-		}
-		{
-			JPanel buttonPane = new JPanel();
-			buttonPane.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			getContentPane().add(buttonPane, BorderLayout.SOUTH);
-			{
-				JButton okButton = new JButton("Registrar");
-				if (cliente != null) {
-					okButton.setText("Modificar");
-				}
-				okButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						guardar();
-					}
-				});
-				buttonPane.add(okButton);
-				getRootPane().setDefaultButton(okButton);
-			}
-			{
-				JButton cancelButton = new JButton("Cancelar");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						dispose();
-					}
-				});
-				buttonPane.add(cancelButton);
-			}
-		}
+		contentPane.add(crearEncabezado(titulo, subtitulo), BorderLayout.NORTH);
+		contentPane.add(crearFormulario(), BorderLayout.CENTER);
+		contentPane.add(crearBotones(), BorderLayout.SOUTH);
 		loadCliente();
+	}
+
+	private JPanel crearEncabezado(String titulo, String subtitulo) {
+		JPanel encabezado = new JPanel();
+		encabezado.setBackground(negro);
+		encabezado.setLayout(new BorderLayout(0, 0));
+		encabezado.setBorder(BorderFactory.createEmptyBorder(18, 40, 18, 40));
+
+		JPanel textos = new JPanel();
+		textos.setOpaque(false);
+		textos.setLayout(new GridLayout(2, 1, 0, 2));
+		encabezado.add(textos, BorderLayout.WEST);
+
+		JLabel lblTitulo = new JLabel(titulo);
+		lblTitulo.setForeground(blanco);
+		lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+		textos.add(lblTitulo);
+
+		JLabel lblSubtitulo = new JLabel(subtitulo);
+		lblSubtitulo.setForeground(grisSuave);
+		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		textos.add(lblSubtitulo);
+
+		JLabel lblLogo = new JLabel("Altice");
+		lblLogo.setForeground(blanco);
+		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+		encabezado.add(lblLogo, BorderLayout.EAST);
+		return encabezado;
+	}
+
+	private JPanel crearFormulario() {
+		JPanel panel = new JPanel();
+		panel.setBackground(blanco);
+		panel.setLayout(null);
+
+		panel.add(crearEtiqueta("ID", 40, 24, 240));
+		txtId = new JTextField();
+		estilizarCampo(txtId);
+		bloquearCampo(txtId);
+		txtId.setBounds(40, 44, 240, 36);
+		panel.add(txtId);
+
+		panel.add(crearEtiqueta("CÉDULA (11 DÍGITOS)", 320, 24, 240));
+		txtCedula = new JTextField();
+		estilizarCampo(txtCedula);
+		txtCedula.setBounds(320, 44, 240, 36);
+		panel.add(txtCedula);
+
+		panel.add(crearEtiqueta("NOMBRE COMPLETO", 40, 96, 520));
+		txtNombre = new JTextField();
+		estilizarCampo(txtNombre);
+		txtNombre.setBounds(40, 116, 520, 36);
+		panel.add(txtNombre);
+
+		panel.add(crearEtiqueta("TELÉFONO (10 DÍGITOS)", 40, 168, 240));
+		txtTelefono = new JTextField();
+		estilizarCampo(txtTelefono);
+		txtTelefono.setBounds(40, 188, 240, 36);
+		panel.add(txtTelefono);
+
+		panel.add(crearEtiqueta("DIRECCIÓN", 320, 168, 240));
+		txtDireccion = new JTextField();
+		estilizarCampo(txtDireccion);
+		txtDireccion.setBounds(320, 188, 240, 36);
+		panel.add(txtDireccion);
+
+		JPanel linea = new JPanel();
+		linea.setBackground(grisBorde);
+		linea.setBounds(40, 246, 520, 1);
+		panel.add(linea);
+
+		JLabel lblAcceso = new JLabel("ACCESO AL SISTEMA (OPCIONAL)");
+		lblAcceso.setForeground(negro);
+		lblAcceso.setFont(new Font("Segoe UI", Font.BOLD, 12));
+		lblAcceso.setBounds(40, 256, 520, 18);
+		panel.add(lblAcceso);
+
+		panel.add(crearEtiqueta("USUARIO", 40, 286, 240));
+		txtUsuario = new JTextField();
+		estilizarCampo(txtUsuario);
+		txtUsuario.setBounds(40, 306, 240, 36);
+		panel.add(txtUsuario);
+
+		panel.add(crearEtiqueta("CONTRASEÑA", 320, 286, 240));
+		pwdContrasena = new JPasswordField();
+		estilizarCampo(pwdContrasena);
+		pwdContrasena.setBounds(320, 306, 240, 36);
+		panel.add(pwdContrasena);
+		return panel;
+	}
+
+	private JPanel crearBotones() {
+		JPanel barra = new JPanel();
+		barra.setBackground(grisClaro);
+		barra.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, grisBorde));
+		barra.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 14));
+
+		JButton cancelButton = new JButton("Cancelar");
+		estilizarBotonContorno(cancelButton);
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		barra.add(cancelButton);
+
+		JButton okButton = new JButton("Registrar");
+		if (cliente != null) {
+			okButton.setText("Modificar");
+		}
+		estilizarBotonPrincipal(okButton);
+		okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				guardar();
+			}
+		});
+		barra.add(okButton);
+		getRootPane().setDefaultButton(okButton);
+		return barra;
+	}
+
+	private JLabel crearEtiqueta(String texto, int x, int y, int ancho) {
+		JLabel etiqueta = new JLabel(texto);
+		etiqueta.setForeground(grisOscuro);
+		etiqueta.setFont(new Font("Segoe UI", Font.BOLD, 11));
+		etiqueta.setBounds(x, y, ancho, 16);
+		return etiqueta;
+	}
+
+	private void estilizarCampo(JTextField campo) {
+		campo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		campo.setForeground(negro);
+		campo.setBackground(grisClaro);
+		campo.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(0, 0, 2, 0, negro),
+				BorderFactory.createEmptyBorder(4, 10, 4, 10)));
+	}
+
+	private void bloquearCampo(JTextField campo) {
+		campo.setEditable(false);
+		campo.setBackground(grisBorde);
+		campo.setForeground(grisMedio);
+		campo.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(0, 0, 2, 0, grisSuave),
+				BorderFactory.createEmptyBorder(4, 10, 4, 10)));
+	}
+
+	private void estilizarBotonPrincipal(JButton boton) {
+		boton.setBackground(negro);
+		boton.setForeground(blanco);
+		boton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+		boton.setFocusPainted(false);
+		boton.setBorderPainted(false);
+		boton.setOpaque(true);
+		boton.setBorder(BorderFactory.createEmptyBorder(9, 26, 9, 26));
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				boton.setBackground(grisOscuro);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setBackground(negro);
+			}
+		});
+	}
+
+	private void estilizarBotonContorno(JButton boton) {
+		boton.setBackground(blanco);
+		boton.setForeground(grisOscuro);
+		boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		boton.setFocusPainted(false);
+		boton.setOpaque(true);
+		boton.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(grisMedio, 1),
+				BorderFactory.createEmptyBorder(8, 24, 8, 24)));
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				boton.setBackground(grisBorde);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setBackground(blanco);
+			}
+		});
 	}
 
 	private boolean estaVacio(String texto) {
@@ -234,7 +349,7 @@ public class RegCliente extends JDialog {
 		if (cliente != null) {
 			txtId.setText(cliente.getId());
 			txtCedula.setText(cliente.getCedula());
-			txtCedula.setEditable(false);
+			bloquearCampo(txtCedula);
 			txtNombre.setText(cliente.getNombre());
 			txtTelefono.setText(cliente.getTelefono());
 			txtDireccion.setText(cliente.getDireccion());

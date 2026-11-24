@@ -1,11 +1,17 @@
 package visual;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -13,8 +19,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 
 import logico.Administrativo;
 import logico.Cliente;
@@ -27,8 +31,15 @@ public class Login extends JFrame {
 	private JPanel contentPane;
 	private JTextField txtUsuario;
 	private JPasswordField pwdContrasena;
+	private Color negro = new Color(17, 17, 17);
+	private Color grisOscuro = new Color(51, 51, 51);
+	private Color grisMedio = new Color(110, 110, 110);
+	private Color grisSuave = new Color(170, 170, 170);
+	private Color grisClaro = new Color(242, 242, 242);
+	private Color blanco = Color.WHITE;
 
 	public static void main(String[] args) {
+		EmpresaAltice.getInstance().cargarDatos();
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -42,67 +53,161 @@ public class Login extends JFrame {
 	}
 
 	public Login() {
-		setTitle("Altice - Iniciar sesión");
+		setTitle("Altice - Iniciar sesion");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 420, 290);
+		setBounds(100, 100, 760, 480);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
-		{
-			JPanel panel = new JPanel();
-			panel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			contentPane.add(panel, BorderLayout.CENTER);
-			panel.setLayout(null);
+		contentPane.add(crearPanelMarca(), BorderLayout.WEST);
+		contentPane.add(crearPanelFormulario(), BorderLayout.CENTER);
+	}
 
-			JLabel lblTitulo = new JLabel("Sistema de gestión Altice");
-			lblTitulo.setBounds(12, 15, 380, 20);
-			panel.add(lblTitulo);
+	private JPanel crearPanelMarca() {
+		JPanel panel = new JPanel();
+		panel.setBackground(negro);
+		panel.setPreferredSize(new Dimension(320, 450));
+		panel.setLayout(null);
 
-			JLabel lblUsuario = new JLabel("Usuario:");
-			lblUsuario.setBounds(40, 60, 100, 16);
-			panel.add(lblUsuario);
+		JLabel lblLogo = new JLabel("Altice");
+		lblLogo.setForeground(blanco);
+		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 56));
+		lblLogo.setBounds(38, 140, 260, 70);
+		panel.add(lblLogo);
 
-			txtUsuario = new JTextField();
-			txtUsuario.setBounds(40, 80, 320, 24);
-			panel.add(txtUsuario);
-			txtUsuario.setColumns(10);
+		JPanel barra = new JPanel();
+		barra.setBackground(blanco);
+		barra.setBounds(44, 220, 60, 4);
+		panel.add(barra);
 
-			JLabel lblContrasena = new JLabel("Contraseña:");
-			lblContrasena.setBounds(40, 115, 100, 16);
-			panel.add(lblContrasena);
+		JLabel lblLema = new JLabel("Sistema de gestion");
+		lblLema.setForeground(grisClaro);
+		lblLema.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		lblLema.setBounds(44, 236, 260, 26);
+		panel.add(lblLema);
 
-			pwdContrasena = new JPasswordField();
-			pwdContrasena.setBounds(40, 135, 320, 24);
-			panel.add(pwdContrasena);
-		}
-		{
-			JPanel buttonPane = new JPanel();
-			buttonPane.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			contentPane.add(buttonPane, BorderLayout.SOUTH);
-			{
-				JButton btnEntrar = new JButton("Entrar");
-				btnEntrar.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						iniciarSesion();
-					}
-				});
-				buttonPane.add(btnEntrar);
-				getRootPane().setDefaultButton(btnEntrar);
+		JLabel lblServicios = new JLabel("Internet  |  Movil  |  Television");
+		lblServicios.setForeground(grisSuave);
+		lblServicios.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		lblServicios.setBounds(44, 266, 260, 20);
+		panel.add(lblServicios);
+		return panel;
+	}
+
+	private JPanel crearPanelFormulario() {
+		JPanel panel = new JPanel();
+		panel.setBackground(blanco);
+		panel.setLayout(null);
+
+		JLabel lblTitulo = new JLabel("Iniciar sesion");
+		lblTitulo.setForeground(negro);
+		lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
+		lblTitulo.setBounds(50, 60, 340, 38);
+		panel.add(lblTitulo);
+
+		JLabel lblSubtitulo = new JLabel("Ingresa con tu usuario y contrasena");
+		lblSubtitulo.setForeground(grisMedio);
+		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		lblSubtitulo.setBounds(50, 100, 340, 20);
+		panel.add(lblSubtitulo);
+
+		JLabel lblUsuario = new JLabel("USUARIO");
+		lblUsuario.setForeground(grisOscuro);
+		lblUsuario.setFont(new Font("Segoe UI", Font.BOLD, 11));
+		lblUsuario.setBounds(50, 150, 340, 16);
+		panel.add(lblUsuario);
+
+		txtUsuario = new JTextField();
+		estilizarCampo(txtUsuario);
+		txtUsuario.setBounds(50, 170, 340, 38);
+		panel.add(txtUsuario);
+
+		JLabel lblContrasena = new JLabel("CONTRASENA");
+		lblContrasena.setForeground(grisOscuro);
+		lblContrasena.setFont(new Font("Segoe UI", Font.BOLD, 11));
+		lblContrasena.setBounds(50, 226, 340, 16);
+		panel.add(lblContrasena);
+
+		pwdContrasena = new JPasswordField();
+		estilizarCampo(pwdContrasena);
+		pwdContrasena.setBounds(50, 246, 340, 38);
+		panel.add(pwdContrasena);
+
+		JButton btnEntrar = crearBotonPrincipal("Entrar");
+		btnEntrar.setBounds(50, 316, 340, 46);
+		btnEntrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				iniciarSesion();
 			}
-			{
-				JButton btnSalir = new JButton("Salir");
-				btnSalir.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						System.exit(0);
-					}
-				});
-				buttonPane.add(btnSalir);
+		});
+		panel.add(btnEntrar);
+		getRootPane().setDefaultButton(btnEntrar);
+
+		JButton btnSalir = crearBotonSecundario("Salir");
+		btnSalir.setBounds(50, 372, 340, 30);
+		btnSalir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
 			}
-		}
+		});
+		panel.add(btnSalir);
+		return panel;
+	}
+
+	private void estilizarCampo(JTextField campo) {
+		campo.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		campo.setForeground(negro);
+		campo.setBackground(grisClaro);
+		campo.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(0, 0, 2, 0, negro),
+				BorderFactory.createEmptyBorder(4, 10, 4, 10)));
+	}
+
+	private JButton crearBotonPrincipal(String texto) {
+		JButton boton = new JButton(texto);
+		boton.setBackground(negro);
+		boton.setForeground(blanco);
+		boton.setFont(new Font("Segoe UI", Font.BOLD, 15));
+		boton.setFocusPainted(false);
+		boton.setBorderPainted(false);
+		boton.setOpaque(true);
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				boton.setBackground(grisOscuro);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setBackground(negro);
+			}
+		});
+		return boton;
+	}
+
+	private JButton crearBotonSecundario(String texto) {
+		JButton boton = new JButton(texto);
+		boton.setForeground(grisMedio);
+		boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		boton.setFocusPainted(false);
+		boton.setBorderPainted(false);
+		boton.setContentAreaFilled(false);
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				boton.setForeground(negro);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setForeground(grisMedio);
+			}
+		});
+		return boton;
 	}
 
 	private void iniciarSesion() {
@@ -110,7 +215,7 @@ public class Login extends JFrame {
 		String contrasena = new String(pwdContrasena.getPassword());
 
 		if (estaVacio(usuario) || estaVacio(contrasena)) {
-			JOptionPane.showMessageDialog(null, "Debe ingresar usuario y contraseña", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Debe ingresar usuario y contrasena", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -118,7 +223,7 @@ public class Login extends JFrame {
 		Persona persona = empresa.iniciarSesion(usuario, contrasena);
 
 		if (persona == null) {
-			JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrectos", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Usuario o contrasena incorrectos", "Error", JOptionPane.ERROR_MESSAGE);
 			pwdContrasena.setText("");
 			return;
 		}
