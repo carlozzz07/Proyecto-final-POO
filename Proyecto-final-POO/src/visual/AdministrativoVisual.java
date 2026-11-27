@@ -151,42 +151,56 @@ public class AdministrativoVisual extends JFrame {
 			}
 		});
 
-		// Servicios (pendiente: RegServicio / ListServicio)
+		// Servicios
 		JPanel servicios = crearModulo("Servicios");
 		agregarOpcion(servicios, "Registrar servicio", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				enDesarrollo("Registrar servicio");
+				RegServicio reg = new RegServicio(null);
+				reg.setModal(true);
+				reg.setVisible(true);
 			}
 		});
 		agregarOpcion(servicios, "Listar servicios", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				enDesarrollo("Listar servicios");
+				ListServicio list = new ListServicio();
+				list.setModal(true);
+				list.setVisible(true);
 			}
 		});
 
-		// Planes (pendiente: RegPlan / ListPlan)
+		// Planes
 		JPanel planes = crearModulo("Planes");
 		agregarOpcion(planes, "Registrar plan", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				enDesarrollo("Registrar plan");
+				RegPlan reg = new RegPlan(null);
+				reg.setModal(true);
+				reg.setVisible(true);
 			}
 		});
 		agregarOpcion(planes, "Listar planes", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				enDesarrollo("Listar planes");
+				ListPlan list = new ListPlan();
+				list.setModal(true);
+				list.setVisible(true);
 			}
 		});
 
-		// Contratos (pendiente: RegContrato / ListContrato)
+		// Contratos
 		JPanel contratos = crearModulo("Contratos");
 		agregarOpcion(contratos, "Registrar contrato", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				enDesarrollo("Registrar contrato");
+				RegContrato reg = new RegContrato(null);
+				reg.setModal(true);
+				reg.setVisible(true);
+				actualizarResumen();
 			}
 		});
 		agregarOpcion(contratos, "Listar contratos", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				enDesarrollo("Listar contratos");
+				ListContrato list = new ListContrato();
+				list.setModal(true);
+				list.setVisible(true);
+				actualizarResumen();
 			}
 		});
 

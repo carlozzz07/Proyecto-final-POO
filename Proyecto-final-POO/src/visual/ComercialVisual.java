@@ -103,6 +103,30 @@ public class ComercialVisual extends JFrame {
 		});
 		panelIzquierdo.add(btnListCliente);
 
+		JButton btnRegContrato = new JButton("Nuevo contrato");
+		estilizarBotonMenu(btnRegContrato);
+		btnRegContrato.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RegContrato reg = new RegContrato(ComercialVisual.this.comercial);
+				reg.setModal(true);
+				reg.setVisible(true);
+				actualizarResumen();
+			}
+		});
+		panelIzquierdo.add(btnRegContrato);
+
+		JButton btnListContrato = new JButton("Contratos");
+		estilizarBotonMenu(btnListContrato);
+		btnListContrato.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ListContrato list = new ListContrato();
+				list.setModal(true);
+				list.setVisible(true);
+				actualizarResumen();
+			}
+		});
+		panelIzquierdo.add(btnListContrato);
+
 		JPanel panelDerecho = new JPanel();
 		panelDerecho.setOpaque(false);
 		panelDerecho.setLayout(new FlowLayout(FlowLayout.RIGHT, 8, 16));
@@ -253,4 +277,4 @@ public class ComercialVisual extends JFrame {
 			System.exit(0);
 		}
 	}
-}
+}	
