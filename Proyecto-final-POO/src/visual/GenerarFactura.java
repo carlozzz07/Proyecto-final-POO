@@ -25,11 +25,6 @@ import logico.Administrativo;
 import logico.EmpresaAltice;
 
 public class GenerarFactura extends JDialog {
-
-	private JPanel contentPane;
-	private JComboBox<String> cbxMes;
-	private JComboBox<Integer> cbxAnio;
-	private Administrativo solicitante;
 	private Color negro = new Color(17, 17, 17);
 	private Color grisOscuro = new Color(51, 51, 51);
 	private Color grisMedio = new Color(110, 110, 110);
@@ -37,6 +32,11 @@ public class GenerarFactura extends JDialog {
 	private Color grisBorde = new Color(220, 220, 220);
 	private Color grisClaro = new Color(242, 242, 242);
 	private Color blanco = Color.WHITE;
+
+	private JPanel contentPane;
+	private JComboBox<String> cbxMes;
+	private JComboBox<Integer> cbxAnio;
+	private Administrativo solicitante;
 
 	public GenerarFactura(Administrativo solicitante) {
 		this.solicitante = solicitante;
@@ -50,37 +50,9 @@ public class GenerarFactura extends JDialog {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
-		contentPane.add(crearEncabezado(), BorderLayout.NORTH);
+		contentPane.add(crearEncabezado("Generar facturas", "Facturacion mensual", 40), BorderLayout.NORTH);
 		contentPane.add(crearFormulario(), BorderLayout.CENTER);
 		contentPane.add(crearBotones(), BorderLayout.SOUTH);
-	}
-
-	private JPanel crearEncabezado() {
-		JPanel encabezado = new JPanel();
-		encabezado.setBackground(negro);
-		encabezado.setLayout(new BorderLayout(0, 0));
-		encabezado.setBorder(BorderFactory.createEmptyBorder(18, 40, 18, 40));
-
-		JPanel textos = new JPanel();
-		textos.setOpaque(false);
-		textos.setLayout(new GridLayout(2, 1, 0, 2));
-		encabezado.add(textos, BorderLayout.WEST);
-
-		JLabel lblTitulo = new JLabel("Generar facturas");
-		lblTitulo.setForeground(blanco);
-		lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
-		textos.add(lblTitulo);
-
-		JLabel lblSubtitulo = new JLabel("Facturación mensual");
-		lblSubtitulo.setForeground(grisSuave);
-		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-		textos.add(lblSubtitulo);
-
-		JLabel lblLogo = new JLabel("Altice");
-		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
-		encabezado.add(lblLogo, BorderLayout.EAST);
-		return encabezado;
 	}
 
 	private JPanel crearFormulario() {
@@ -88,11 +60,7 @@ public class GenerarFactura extends JDialog {
 		panel.setBackground(blanco);
 		panel.setLayout(null);
 
-		JLabel lblInfo = new JLabel("Se facturan los contratos activos del período escogido.");
-		lblInfo.setForeground(grisMedio);
-		lblInfo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-		lblInfo.setBounds(40, 28, 400, 20);
-		panel.add(lblInfo);
+		panel.add(crearTextoInfo("Se facturan los contratos activos del periodo escogido.", 40, 28, 400));
 
 		panel.add(crearEtiqueta("MES", 40, 72, 190));
 		cbxMes = new JComboBox<String>();
@@ -102,7 +70,7 @@ public class GenerarFactura extends JDialog {
 		cbxMes.setBounds(40, 92, 190, 38);
 		panel.add(cbxMes);
 
-		panel.add(crearEtiqueta("AÑO", 250, 72, 190));
+		panel.add(crearEtiqueta("ANIO", 250, 72, 190));
 		cbxAnio = new JComboBox<Integer>();
 		int anioActual = LocalDate.now().getYear();
 		cbxAnio.addItem(anioActual - 1);
@@ -118,10 +86,7 @@ public class GenerarFactura extends JDialog {
 	}
 
 	private JPanel crearBotones() {
-		JPanel barra = new JPanel();
-		barra.setBackground(grisClaro);
-		barra.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, grisBorde));
-		barra.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 14));
+		JPanel barra = crearBarraBotones();
 
 		JButton cancelButton = new JButton("Cancelar");
 		estilizarBotonContorno(cancelButton);
@@ -144,11 +109,73 @@ public class GenerarFactura extends JDialog {
 		return barra;
 	}
 
+	private void generar() {
+		int mes = cbxMes.getSelectedIndex() + 1;
+		int anio = (Integer) cbxAnio.getSelectedItem();
+
+		EmpresaAltice empresa = EmpresaAltice.getInstance();
+		int cantidad = empresa.generarFacturasDelMes(solicitante, mes, anio);
+
+		if (cantidad == 0) {
+			JOptionPane.showMessageDialog(null, "No se genero ninguna factura. Puede que no haya contratos por facturar\nen ese periodo o que ya esten facturados.",
+					"Informacion", JOptionPane.INFORMATION_MESSAGE);
+		} else {
+			empresa.guardarDatos();
+			JOptionPane.showMessageDialog(null, "Se generaron " + cantidad + " factura(s) del periodo " + mes + "/" + anio,
+					"Informacion", JOptionPane.INFORMATION_MESSAGE);
+			dispose();
+		}
+	}
+
+	private JPanel crearEncabezado(String titulo, String subtitulo, int margen) {
+		JPanel encabezado = new JPanel();
+		encabezado.setBackground(negro);
+		encabezado.setLayout(new BorderLayout(0, 0));
+		encabezado.setBorder(BorderFactory.createEmptyBorder(18, margen, 18, margen));
+
+		JPanel textos = new JPanel();
+		textos.setOpaque(false);
+		textos.setLayout(new GridLayout(2, 1, 0, 2));
+		encabezado.add(textos, BorderLayout.WEST);
+
+		JLabel lblTitulo = new JLabel(titulo);
+		lblTitulo.setForeground(blanco);
+		lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+		textos.add(lblTitulo);
+
+		JLabel lblSubtitulo = new JLabel(subtitulo);
+		lblSubtitulo.setForeground(grisSuave);
+		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		textos.add(lblSubtitulo);
+
+		JLabel lblLogo = new JLabel("Altice");
+		lblLogo.setForeground(blanco);
+		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+		encabezado.add(lblLogo, BorderLayout.EAST);
+		return encabezado;
+	}
+
+	private JPanel crearBarraBotones() {
+		JPanel barra = new JPanel();
+		barra.setBackground(grisClaro);
+		barra.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, grisBorde));
+		barra.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 14));
+		return barra;
+	}
+
 	private JLabel crearEtiqueta(String texto, int x, int y, int ancho) {
 		JLabel etiqueta = new JLabel(texto);
 		etiqueta.setForeground(grisOscuro);
 		etiqueta.setFont(new Font("Segoe UI", Font.BOLD, 11));
 		etiqueta.setBounds(x, y, ancho, 16);
+		return etiqueta;
+	}
+
+	private JLabel crearTextoInfo(String texto, int x, int y, int ancho) {
+		JLabel etiqueta = new JLabel(texto);
+		etiqueta.setForeground(grisMedio);
+		etiqueta.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		etiqueta.setBounds(x, y, ancho, 20);
 		return etiqueta;
 	}
 
@@ -172,7 +199,9 @@ public class GenerarFactura extends JDialog {
 		boton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				boton.setBackground(grisOscuro);
+				if (boton.isEnabled()) {
+					boton.setBackground(grisOscuro);
+				}
 			}
 
 			@Override
@@ -195,7 +224,9 @@ public class GenerarFactura extends JDialog {
 		boton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				boton.setBackground(grisBorde);
+				if (boton.isEnabled()) {
+					boton.setBackground(grisBorde);
+				}
 			}
 
 			@Override
@@ -203,21 +234,5 @@ public class GenerarFactura extends JDialog {
 				boton.setBackground(blanco);
 			}
 		});
-	}
-
-	private void generar() {
-		int mes = cbxMes.getSelectedIndex() + 1;
-		int anio = (Integer) cbxAnio.getSelectedItem();
-
-		int cantidad = EmpresaAltice.getInstance().generarFacturasDelMes(solicitante, mes, anio);
-
-		if (cantidad == 0) {
-			JOptionPane.showMessageDialog(null, "No se generó ninguna factura. Puede que no haya contratos por facturar\nen ese período o que ya estén facturados.",
-					"Información", JOptionPane.INFORMATION_MESSAGE);
-		} else {
-			JOptionPane.showMessageDialog(null, "Se generaron " + cantidad + " factura(s) del período " + mes + "/" + anio,
-					"Información", JOptionPane.INFORMATION_MESSAGE);
-			dispose();
-		}
 	}
 }

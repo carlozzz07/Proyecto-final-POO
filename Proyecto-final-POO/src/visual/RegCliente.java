@@ -25,6 +25,13 @@ import logico.EmpresaAltice;
 import logico.Persona;
 
 public class RegCliente extends JDialog {
+	private Color negro = new Color(17, 17, 17);
+	private Color grisOscuro = new Color(51, 51, 51);
+	private Color grisMedio = new Color(110, 110, 110);
+	private Color grisSuave = new Color(170, 170, 170);
+	private Color grisBorde = new Color(220, 220, 220);
+	private Color grisClaro = new Color(242, 242, 242);
+	private Color blanco = Color.WHITE;
 
 	private JPanel contentPane;
 	private JTextField txtId;
@@ -35,13 +42,6 @@ public class RegCliente extends JDialog {
 	private JTextField txtUsuario;
 	private JPasswordField pwdContrasena;
 	private Cliente cliente = null;
-	private Color negro = new Color(17, 17, 17);
-	private Color grisOscuro = new Color(51, 51, 51);
-	private Color grisMedio = new Color(110, 110, 110);
-	private Color grisSuave = new Color(170, 170, 170);
-	private Color grisBorde = new Color(220, 220, 220);
-	private Color grisClaro = new Color(242, 242, 242);
-	private Color blanco = Color.WHITE;
 
 	public RegCliente(Cliente aux) {
 		String titulo = "Registrar cliente";
@@ -63,38 +63,10 @@ public class RegCliente extends JDialog {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
-		contentPane.add(crearEncabezado(titulo, subtitulo), BorderLayout.NORTH);
+		contentPane.add(crearEncabezado(titulo, subtitulo, 40), BorderLayout.NORTH);
 		contentPane.add(crearFormulario(), BorderLayout.CENTER);
 		contentPane.add(crearBotones(), BorderLayout.SOUTH);
 		loadCliente();
-	}
-
-	private JPanel crearEncabezado(String titulo, String subtitulo) {
-		JPanel encabezado = new JPanel();
-		encabezado.setBackground(negro);
-		encabezado.setLayout(new BorderLayout(0, 0));
-		encabezado.setBorder(BorderFactory.createEmptyBorder(18, 40, 18, 40));
-
-		JPanel textos = new JPanel();
-		textos.setOpaque(false);
-		textos.setLayout(new GridLayout(2, 1, 0, 2));
-		encabezado.add(textos, BorderLayout.WEST);
-
-		JLabel lblTitulo = new JLabel(titulo);
-		lblTitulo.setForeground(blanco);
-		lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
-		textos.add(lblTitulo);
-
-		JLabel lblSubtitulo = new JLabel(subtitulo);
-		lblSubtitulo.setForeground(grisSuave);
-		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-		textos.add(lblSubtitulo);
-
-		JLabel lblLogo = new JLabel("Altice");
-		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
-		encabezado.add(lblLogo, BorderLayout.EAST);
-		return encabezado;
 	}
 
 	private JPanel crearFormulario() {
@@ -109,7 +81,7 @@ public class RegCliente extends JDialog {
 		txtId.setBounds(40, 44, 240, 36);
 		panel.add(txtId);
 
-		panel.add(crearEtiqueta("CÉDULA (11 DÍGITOS)", 320, 24, 240));
+		panel.add(crearEtiqueta("CEDULA (11 DIGITOS)", 320, 24, 240));
 		txtCedula = new JTextField();
 		estilizarCampo(txtCedula);
 		txtCedula.setBounds(320, 44, 240, 36);
@@ -121,28 +93,19 @@ public class RegCliente extends JDialog {
 		txtNombre.setBounds(40, 116, 520, 36);
 		panel.add(txtNombre);
 
-		panel.add(crearEtiqueta("TELÉFONO (10 DÍGITOS)", 40, 168, 240));
+		panel.add(crearEtiqueta("TELEFONO (10 DIGITOS)", 40, 168, 240));
 		txtTelefono = new JTextField();
 		estilizarCampo(txtTelefono);
 		txtTelefono.setBounds(40, 188, 240, 36);
 		panel.add(txtTelefono);
 
-		panel.add(crearEtiqueta("DIRECCIÓN", 320, 168, 240));
+		panel.add(crearEtiqueta("DIRECCION", 320, 168, 240));
 		txtDireccion = new JTextField();
 		estilizarCampo(txtDireccion);
 		txtDireccion.setBounds(320, 188, 240, 36);
 		panel.add(txtDireccion);
 
-		JPanel linea = new JPanel();
-		linea.setBackground(grisBorde);
-		linea.setBounds(40, 246, 520, 1);
-		panel.add(linea);
-
-		JLabel lblAcceso = new JLabel("ACCESO AL SISTEMA (OPCIONAL)");
-		lblAcceso.setForeground(negro);
-		lblAcceso.setFont(new Font("Segoe UI", Font.BOLD, 12));
-		lblAcceso.setBounds(40, 256, 520, 18);
-		panel.add(lblAcceso);
+		agregarSeccion(panel, "ACCESO AL SISTEMA (OPCIONAL)", 40, 246, 520);
 
 		panel.add(crearEtiqueta("USUARIO", 40, 286, 240));
 		txtUsuario = new JTextField();
@@ -150,7 +113,7 @@ public class RegCliente extends JDialog {
 		txtUsuario.setBounds(40, 306, 240, 36);
 		panel.add(txtUsuario);
 
-		panel.add(crearEtiqueta("CONTRASEÑA", 320, 286, 240));
+		panel.add(crearEtiqueta("CONTRASENA", 320, 286, 240));
 		pwdContrasena = new JPasswordField();
 		estilizarCampo(pwdContrasena);
 		pwdContrasena.setBounds(320, 306, 240, 36);
@@ -159,10 +122,7 @@ public class RegCliente extends JDialog {
 	}
 
 	private JPanel crearBotones() {
-		JPanel barra = new JPanel();
-		barra.setBackground(grisClaro);
-		barra.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, grisBorde));
-		barra.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 14));
+		JPanel barra = crearBarraBotones();
 
 		JButton cancelButton = new JButton("Cancelar");
 		estilizarBotonContorno(cancelButton);
@@ -186,77 +146,6 @@ public class RegCliente extends JDialog {
 		barra.add(okButton);
 		getRootPane().setDefaultButton(okButton);
 		return barra;
-	}
-
-	private JLabel crearEtiqueta(String texto, int x, int y, int ancho) {
-		JLabel etiqueta = new JLabel(texto);
-		etiqueta.setForeground(grisOscuro);
-		etiqueta.setFont(new Font("Segoe UI", Font.BOLD, 11));
-		etiqueta.setBounds(x, y, ancho, 16);
-		return etiqueta;
-	}
-
-	private void estilizarCampo(JTextField campo) {
-		campo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-		campo.setForeground(negro);
-		campo.setBackground(grisClaro);
-		campo.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(0, 0, 2, 0, negro),
-				BorderFactory.createEmptyBorder(4, 10, 4, 10)));
-	}
-
-	private void bloquearCampo(JTextField campo) {
-		campo.setEditable(false);
-		campo.setBackground(grisBorde);
-		campo.setForeground(grisMedio);
-		campo.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(0, 0, 2, 0, grisSuave),
-				BorderFactory.createEmptyBorder(4, 10, 4, 10)));
-	}
-
-	private void estilizarBotonPrincipal(JButton boton) {
-		boton.setBackground(negro);
-		boton.setForeground(blanco);
-		boton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-		boton.setFocusPainted(false);
-		boton.setBorderPainted(false);
-		boton.setOpaque(true);
-		boton.setBorder(BorderFactory.createEmptyBorder(9, 26, 9, 26));
-		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		boton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				boton.setBackground(grisOscuro);
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				boton.setBackground(negro);
-			}
-		});
-	}
-
-	private void estilizarBotonContorno(JButton boton) {
-		boton.setBackground(blanco);
-		boton.setForeground(grisOscuro);
-		boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-		boton.setFocusPainted(false);
-		boton.setOpaque(true);
-		boton.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(grisMedio, 1),
-				BorderFactory.createEmptyBorder(8, 24, 8, 24)));
-		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		boton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				boton.setBackground(grisBorde);
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				boton.setBackground(blanco);
-			}
-		});
 	}
 
 	private boolean estaVacio(String texto) {
@@ -293,19 +182,19 @@ public class RegCliente extends JDialog {
 		String contrasena = new String(pwdContrasena.getPassword());
 
 		if (estaVacio(nombre) || estaVacio(direccion)) {
-			JOptionPane.showMessageDialog(null, "Debe llenar el nombre y la dirección", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Debe llenar el nombre y la direccion", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		if (cedula.length() != 11 || !soloDigitos(cedula)) {
-			JOptionPane.showMessageDialog(null, "La cédula debe tener 11 dígitos, sin guiones", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "La cedula debe tener 11 digitos, sin guiones", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		if (telefono.length() != 10 || !soloDigitos(telefono)) {
-			JOptionPane.showMessageDialog(null, "El teléfono debe tener 10 dígitos, sin guiones", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "El telefono debe tener 10 digitos, sin guiones", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		if (estaVacio(usuario) != estaVacio(contrasena)) {
-			JOptionPane.showMessageDialog(null, "Si asigna acceso al cliente, debe llenar usuario y contraseña (o dejar ambos en blanco)",
+			JOptionPane.showMessageDialog(null, "Si asigna acceso al cliente, debe llenar usuario y contrasena (o dejar ambos en blanco)",
 					"Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -318,20 +207,21 @@ public class RegCliente extends JDialog {
 		if (!usuario.equals("")) {
 			Persona existente = empresa.buscarPersonaByUsuario(usuario);
 			if (existente != null && existente != cliente) {
-				JOptionPane.showMessageDialog(null, "Ese nombre de usuario ya está en uso", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Ese nombre de usuario ya esta en uso", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
 
 		if (cliente == null) {
 			if (empresa.buscarClienteByCedula(cedula) != null) {
-				JOptionPane.showMessageDialog(null, "Ya existe un cliente con esa cédula", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Ya existe un cliente con esa cedula", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			Cliente nuevo = new Cliente(txtId.getText(), cedula, nombre, telefono, direccion, usuario, contrasena);
 			empresa.registrarPersona(nuevo);
+			empresa.guardarDatos();
 			ListCliente.loadClientes();
-			JOptionPane.showMessageDialog(null, "Registro satisfactorio", "Información", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Registro satisfactorio", "Informacion", JOptionPane.INFORMATION_MESSAGE);
 			clean();
 		} else {
 			cliente.setNombre(nombre);
@@ -339,8 +229,9 @@ public class RegCliente extends JDialog {
 			cliente.setDireccion(direccion);
 			cliente.setUsuario(usuario);
 			cliente.setContrasena(contrasena);
+			empresa.guardarDatos();
 			ListCliente.loadClientes();
-			JOptionPane.showMessageDialog(null, "Modificación satisfactoria", "Información", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Modificacion satisfactoria", "Informacion", JOptionPane.INFORMATION_MESSAGE);
 			dispose();
 		}
 	}
@@ -368,5 +259,129 @@ public class RegCliente extends JDialog {
 		txtDireccion.setText("");
 		txtUsuario.setText("");
 		pwdContrasena.setText("");
+	}
+
+	private JPanel crearEncabezado(String titulo, String subtitulo, int margen) {
+		JPanel encabezado = new JPanel();
+		encabezado.setBackground(negro);
+		encabezado.setLayout(new BorderLayout(0, 0));
+		encabezado.setBorder(BorderFactory.createEmptyBorder(18, margen, 18, margen));
+
+		JPanel textos = new JPanel();
+		textos.setOpaque(false);
+		textos.setLayout(new GridLayout(2, 1, 0, 2));
+		encabezado.add(textos, BorderLayout.WEST);
+
+		JLabel lblTitulo = new JLabel(titulo);
+		lblTitulo.setForeground(blanco);
+		lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+		textos.add(lblTitulo);
+
+		JLabel lblSubtitulo = new JLabel(subtitulo);
+		lblSubtitulo.setForeground(grisSuave);
+		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		textos.add(lblSubtitulo);
+
+		JLabel lblLogo = new JLabel("Altice");
+		lblLogo.setForeground(blanco);
+		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+		encabezado.add(lblLogo, BorderLayout.EAST);
+		return encabezado;
+	}
+
+	private JPanel crearBarraBotones() {
+		JPanel barra = new JPanel();
+		barra.setBackground(grisClaro);
+		barra.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, grisBorde));
+		barra.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 14));
+		return barra;
+	}
+
+	private JLabel crearEtiqueta(String texto, int x, int y, int ancho) {
+		JLabel etiqueta = new JLabel(texto);
+		etiqueta.setForeground(grisOscuro);
+		etiqueta.setFont(new Font("Segoe UI", Font.BOLD, 11));
+		etiqueta.setBounds(x, y, ancho, 16);
+		return etiqueta;
+	}
+
+	private void agregarSeccion(JPanel panel, String texto, int x, int y, int ancho) {
+		JPanel linea = new JPanel();
+		linea.setBackground(grisBorde);
+		linea.setBounds(x, y, ancho, 1);
+		panel.add(linea);
+
+		JLabel lblSeccion = new JLabel(texto);
+		lblSeccion.setForeground(negro);
+		lblSeccion.setFont(new Font("Segoe UI", Font.BOLD, 12));
+		lblSeccion.setBounds(x, y + 10, ancho, 18);
+		panel.add(lblSeccion);
+	}
+
+	private void estilizarCampo(JTextField campo) {
+		campo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		campo.setForeground(negro);
+		campo.setBackground(grisClaro);
+		campo.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(0, 0, 2, 0, negro),
+				BorderFactory.createEmptyBorder(4, 10, 4, 10)));
+	}
+
+	private void bloquearCampo(JTextField campo) {
+		campo.setEditable(false);
+		campo.setBackground(grisBorde);
+		campo.setForeground(grisMedio);
+		campo.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createMatteBorder(0, 0, 2, 0, grisSuave),
+				BorderFactory.createEmptyBorder(4, 10, 4, 10)));
+	}
+
+	private void estilizarBotonPrincipal(JButton boton) {
+		boton.setBackground(negro);
+		boton.setForeground(blanco);
+		boton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+		boton.setFocusPainted(false);
+		boton.setBorderPainted(false);
+		boton.setOpaque(true);
+		boton.setBorder(BorderFactory.createEmptyBorder(9, 26, 9, 26));
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				if (boton.isEnabled()) {
+					boton.setBackground(grisOscuro);
+				}
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setBackground(negro);
+			}
+		});
+	}
+
+	private void estilizarBotonContorno(JButton boton) {
+		boton.setBackground(blanco);
+		boton.setForeground(grisOscuro);
+		boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		boton.setFocusPainted(false);
+		boton.setOpaque(true);
+		boton.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(grisMedio, 1),
+				BorderFactory.createEmptyBorder(8, 24, 8, 24)));
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				if (boton.isEnabled()) {
+					boton.setBackground(grisBorde);
+				}
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setBackground(blanco);
+			}
+		});
 	}
 }

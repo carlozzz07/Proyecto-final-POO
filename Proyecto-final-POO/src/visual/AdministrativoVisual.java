@@ -2,7 +2,9 @@ package visual;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -16,12 +18,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import logico.Administrativo;
 import logico.Contrato;
@@ -34,9 +39,12 @@ public class AdministrativoVisual extends JFrame {
 	private JLabel lblClientes;
 	private JLabel lblContratos;
 	private JLabel lblPendientes;
+	private JPanel menuLateral;
+	private ArrayList<JPanel> modulos = new ArrayList<JPanel>();
 	private Color negro = new Color(17, 17, 17);
 	private Color grisOscuro = new Color(51, 51, 51);
 	private Color grisMedio = new Color(110, 110, 110);
+	private Color grisSuave = new Color(170, 170, 170);
 	private Color grisBorde = new Color(220, 220, 220);
 	private Color grisClaro = new Color(242, 242, 242);
 	private Color blanco = Color.WHITE;
@@ -51,7 +59,8 @@ public class AdministrativoVisual extends JFrame {
 				salir();
 			}
 		});
-		setBounds(100, 100, 1000, 640);
+		setBounds(100, 100, 1120, 700);
+		setMinimumSize(new Dimension(1000, 660));
 		setLocationRelativeTo(null);
 
 		contentPane = new JPanel();
@@ -59,31 +68,56 @@ public class AdministrativoVisual extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
-		contentPane.add(crearEncabezado(), BorderLayout.NORTH);
-		contentPane.add(crearCentro(), BorderLayout.CENTER);
-		contentPane.add(crearBarraEstado(), BorderLayout.SOUTH);
+		contentPane.add(crearMenuLateral(), BorderLayout.WEST);
+
+		JPanel derecha = new JPanel();
+		derecha.setBackground(blanco);
+		derecha.setLayout(new BorderLayout(0, 0));
+		derecha.add(crearCentro(), BorderLayout.CENTER);
+		derecha.add(crearBarraEstado(), BorderLayout.SOUTH);
+		contentPane.add(derecha, BorderLayout.CENTER);
+
 		actualizarResumen();
 	}
 
-	private JPanel crearEncabezado() {
-		JPanel encabezado = new JPanel();
-		encabezado.setBackground(negro);
-		encabezado.setLayout(new BorderLayout(0, 0));
+	// ------------------------------------------------------------------
+	// Menu lateral
+	// ------------------------------------------------------------------
 
-		JPanel panelIzquierdo = new JPanel();
-		panelIzquierdo.setOpaque(false);
-		panelIzquierdo.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 16));
-		encabezado.add(panelIzquierdo, BorderLayout.WEST);
+	private JPanel crearMenuLateral() {
+		menuLateral = new JPanel();
+		menuLateral.setBackground(negro);
+		menuLateral.setPreferredSize(new Dimension(250, 0));
+		menuLateral.setLayout(new BoxLayout(menuLateral, BoxLayout.Y_AXIS));
+
+		JPanel marca = new JPanel();
+		marca.setOpaque(false);
+		marca.setLayout(new GridLayout(2, 1, 0, 2));
+		marca.setBorder(BorderFactory.createEmptyBorder(26, 22, 22, 22));
+		marca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+		marca.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		JLabel lblLogo = new JLabel("Altice");
 		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 28));
-		lblLogo.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 24));
-		panelIzquierdo.add(lblLogo);
+		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 32));
+		marca.add(lblLogo);
 
-		JButton btnRegCliente = new JButton("Registrar cliente");
-		estilizarBotonMenu(btnRegCliente);
-		btnRegCliente.addActionListener(new ActionListener() {
+		JLabel lblRol = new JLabel("Panel administrativo");
+		lblRol.setForeground(grisSuave);
+		lblRol.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		marca.add(lblRol);
+		menuLateral.add(marca);
+
+		JLabel lblModulos = new JLabel("MODULOS");
+		lblModulos.setForeground(grisMedio);
+		lblModulos.setFont(new Font("Segoe UI", Font.BOLD, 11));
+		lblModulos.setBorder(BorderFactory.createEmptyBorder(6, 22, 8, 0));
+		lblModulos.setAlignmentX(Component.LEFT_ALIGNMENT);
+		menuLateral.add(lblModulos);
+
+		// Clientes
+		JPanel clientes = crearModulo("Clientes");
+		agregarOpcion(clientes, "Registrar cliente", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RegCliente reg = new RegCliente(null);
 				reg.setModal(true);
@@ -91,11 +125,7 @@ public class AdministrativoVisual extends JFrame {
 				actualizarResumen();
 			}
 		});
-		panelIzquierdo.add(btnRegCliente);
-
-		JButton btnListCliente = new JButton("Listar clientes");
-		estilizarBotonMenu(btnListCliente);
-		btnListCliente.addActionListener(new ActionListener() {
+		agregarOpcion(clientes, "Listar clientes", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ListCliente list = new ListCliente();
 				list.setModal(true);
@@ -103,11 +133,66 @@ public class AdministrativoVisual extends JFrame {
 				actualizarResumen();
 			}
 		});
-		panelIzquierdo.add(btnListCliente);
 
-		JButton btnGenerarFacturas = new JButton("Generar facturas");
-		estilizarBotonMenu(btnGenerarFacturas);
-		btnGenerarFacturas.addActionListener(new ActionListener() {
+		// Empleados
+		JPanel empleados = crearModulo("Empleados");
+		agregarOpcion(empleados, "Registrar empleado", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RegEmpleado reg = new RegEmpleado(null);
+				reg.setModal(true);
+				reg.setVisible(true);
+			}
+		});
+		agregarOpcion(empleados, "Listar empleados", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ListEmpleado list = new ListEmpleado(AdministrativoVisual.this.administrativo);
+				list.setModal(true);
+				list.setVisible(true);
+			}
+		});
+
+		// Servicios (pendiente: RegServicio / ListServicio)
+		JPanel servicios = crearModulo("Servicios");
+		agregarOpcion(servicios, "Registrar servicio", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				enDesarrollo("Registrar servicio");
+			}
+		});
+		agregarOpcion(servicios, "Listar servicios", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				enDesarrollo("Listar servicios");
+			}
+		});
+
+		// Planes (pendiente: RegPlan / ListPlan)
+		JPanel planes = crearModulo("Planes");
+		agregarOpcion(planes, "Registrar plan", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				enDesarrollo("Registrar plan");
+			}
+		});
+		agregarOpcion(planes, "Listar planes", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				enDesarrollo("Listar planes");
+			}
+		});
+
+		// Contratos (pendiente: RegContrato / ListContrato)
+		JPanel contratos = crearModulo("Contratos");
+		agregarOpcion(contratos, "Registrar contrato", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				enDesarrollo("Registrar contrato");
+			}
+		});
+		agregarOpcion(contratos, "Listar contratos", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				enDesarrollo("Listar contratos");
+			}
+		});
+
+		// Facturas
+		JPanel facturas = crearModulo("Facturas");
+		agregarOpcion(facturas, "Generar facturas", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GenerarFactura generar = new GenerarFactura(AdministrativoVisual.this.administrativo);
 				generar.setModal(true);
@@ -115,12 +200,198 @@ public class AdministrativoVisual extends JFrame {
 				actualizarResumen();
 			}
 		});
-		panelIzquierdo.add(btnGenerarFacturas);
 
-		JPanel panelDerecho = new JPanel();
-		panelDerecho.setOpaque(false);
-		panelDerecho.setLayout(new FlowLayout(FlowLayout.RIGHT, 8, 16));
-		encabezado.add(panelDerecho, BorderLayout.EAST);
+		// Reportes (pendiente: vista de reportes)
+		crearModuloSimple("Reportes", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				enDesarrollo("Reportes");
+			}
+		});
+
+		menuLateral.add(Box.createVerticalGlue());
+		menuLateral.add(crearPanelSesion());
+		return menuLateral;
+	}
+
+	private JPanel crearModulo(String titulo) {
+		final JPanel modulo = new JPanel();
+		modulo.setOpaque(false);
+		modulo.setLayout(new BoxLayout(modulo, BoxLayout.Y_AXIS));
+		modulo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		JButton cabecera = new JButton();
+		estilizarBotonModulo(cabecera);
+		cabecera.putClientProperty("titulo", titulo);
+		cabecera.putClientProperty("conSubmenu", Boolean.TRUE);
+		marcarModulo(cabecera, false);
+		cabecera.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				alternarModulo(modulo);
+			}
+		});
+
+		JPanel submenu = new JPanel();
+		submenu.setOpaque(false);
+		submenu.setLayout(new BoxLayout(submenu, BoxLayout.Y_AXIS));
+		submenu.setAlignmentX(Component.LEFT_ALIGNMENT);
+		submenu.setVisible(false);
+
+		modulo.add(cabecera);
+		modulo.add(submenu);
+		modulos.add(modulo);
+		menuLateral.add(modulo);
+		return modulo;
+	}
+
+	private void crearModuloSimple(String titulo, final ActionListener accion) {
+		JPanel modulo = new JPanel();
+		modulo.setOpaque(false);
+		modulo.setLayout(new BoxLayout(modulo, BoxLayout.Y_AXIS));
+		modulo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		JButton cabecera = new JButton();
+		estilizarBotonModulo(cabecera);
+		cabecera.putClientProperty("titulo", titulo);
+		cabecera.putClientProperty("conSubmenu", Boolean.FALSE);
+		marcarModulo(cabecera, false);
+		cabecera.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cerrarModulos();
+				accion.actionPerformed(e);
+			}
+		});
+
+		JPanel submenu = new JPanel();
+		submenu.setOpaque(false);
+		submenu.setVisible(false);
+
+		modulo.add(cabecera);
+		modulo.add(submenu);
+		modulos.add(modulo);
+		menuLateral.add(modulo);
+	}
+
+	private void agregarOpcion(JPanel modulo, String texto, ActionListener accion) {
+		JButton opcion = new JButton(texto);
+		opcion.setBackground(negro);
+		opcion.setForeground(grisSuave);
+		opcion.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		opcion.setHorizontalAlignment(SwingConstants.LEFT);
+		opcion.setFocusPainted(false);
+		opcion.setBorderPainted(false);
+		opcion.setOpaque(true);
+		opcion.setBorder(BorderFactory.createEmptyBorder(0, 42, 0, 10));
+		opcion.setPreferredSize(new Dimension(250, 36));
+		opcion.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+		opcion.setAlignmentX(Component.LEFT_ALIGNMENT);
+		opcion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		opcion.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				opcion.setBackground(grisOscuro);
+				opcion.setForeground(blanco);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				opcion.setBackground(negro);
+				opcion.setForeground(grisSuave);
+			}
+		});
+		opcion.addActionListener(accion);
+		JPanel submenu = (JPanel) modulo.getComponent(1);
+		submenu.add(opcion);
+	}
+
+	private void estilizarBotonModulo(JButton boton) {
+		boton.setBackground(negro);
+		boton.setForeground(blanco);
+		boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		boton.setHorizontalAlignment(SwingConstants.LEFT);
+		boton.setFocusPainted(false);
+		boton.setBorderPainted(false);
+		boton.setOpaque(true);
+		boton.setPreferredSize(new Dimension(250, 44));
+		boton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+		boton.setAlignmentX(Component.LEFT_ALIGNMENT);
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				boton.setBackground(grisOscuro);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				if (Boolean.TRUE.equals(boton.getClientProperty("abierto"))) {
+					boton.setBackground(grisOscuro);
+				} else {
+					boton.setBackground(negro);
+				}
+			}
+		});
+	}
+
+	private void marcarModulo(JButton cabecera, boolean abierto) {
+		String titulo = (String) cabecera.getClientProperty("titulo");
+		boolean conSubmenu = Boolean.TRUE.equals(cabecera.getClientProperty("conSubmenu"));
+		cabecera.putClientProperty("abierto", Boolean.valueOf(abierto));
+		if (conSubmenu) {
+			if (abierto) {
+				cabecera.setText(titulo + "    -");
+			} else {
+				cabecera.setText(titulo + "    +");
+			}
+		} else {
+			cabecera.setText(titulo);
+		}
+		if (abierto) {
+			cabecera.setBackground(grisOscuro);
+			cabecera.setFont(new Font("Segoe UI", Font.BOLD, 14));
+			cabecera.setBorder(BorderFactory.createCompoundBorder(
+					BorderFactory.createMatteBorder(0, 4, 0, 0, blanco),
+					BorderFactory.createEmptyBorder(0, 18, 0, 10)));
+		} else {
+			cabecera.setBackground(negro);
+			cabecera.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+			cabecera.setBorder(BorderFactory.createEmptyBorder(0, 22, 0, 10));
+		}
+	}
+
+	private void alternarModulo(JPanel elegido) {
+		int i = 0;
+		while (i < modulos.size()) {
+			JPanel modulo = modulos.get(i);
+			JButton cabecera = (JButton) modulo.getComponent(0);
+			JPanel submenu = (JPanel) modulo.getComponent(1);
+			boolean abrir = (modulo == elegido) && !submenu.isVisible();
+			submenu.setVisible(abrir);
+			marcarModulo(cabecera, abrir);
+			i++;
+		}
+		menuLateral.revalidate();
+		menuLateral.repaint();
+	}
+
+	private void cerrarModulos() {
+		int i = 0;
+		while (i < modulos.size()) {
+			JPanel modulo = modulos.get(i);
+			((JPanel) modulo.getComponent(1)).setVisible(false);
+			marcarModulo((JButton) modulo.getComponent(0), false);
+			i++;
+		}
+		menuLateral.revalidate();
+		menuLateral.repaint();
+	}
+
+	private JPanel crearPanelSesion() {
+		JPanel panel = new JPanel();
+		panel.setOpaque(false);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 22, 22, 22));
+		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
 
 		JButton btnCerrarSesion = new JButton("Cerrar sesion");
 		estilizarBotonContorno(btnCerrarSesion);
@@ -132,7 +403,8 @@ public class AdministrativoVisual extends JFrame {
 				dispose();
 			}
 		});
-		panelDerecho.add(btnCerrarSesion);
+		panel.add(btnCerrarSesion);
+		panel.add(Box.createVerticalStrut(8));
 
 		JButton btnSalir = new JButton("Salir");
 		estilizarBotonContorno(btnSalir);
@@ -141,14 +413,44 @@ public class AdministrativoVisual extends JFrame {
 				salir();
 			}
 		});
-		panelDerecho.add(btnSalir);
-		return encabezado;
+		panel.add(btnSalir);
+		return panel;
 	}
+
+	private void estilizarBotonContorno(JButton boton) {
+		boton.setBackground(negro);
+		boton.setForeground(blanco);
+		boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		boton.setFocusPainted(false);
+		boton.setOpaque(true);
+		boton.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(grisMedio, 1),
+				BorderFactory.createEmptyBorder(7, 14, 7, 14)));
+		boton.setPreferredSize(new Dimension(206, 38));
+		boton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+		boton.setAlignmentX(Component.LEFT_ALIGNMENT);
+		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				boton.setBackground(grisOscuro);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				boton.setBackground(negro);
+			}
+		});
+	}
+
+	// ------------------------------------------------------------------
+	// Panel principal
+	// ------------------------------------------------------------------
 
 	private JPanel crearCentro() {
 		JPanel centro = new JPanel();
 		centro.setBackground(blanco);
-		centro.setBorder(BorderFactory.createEmptyBorder(44, 60, 40, 60));
+		centro.setBorder(BorderFactory.createEmptyBorder(44, 50, 40, 50));
 		centro.setLayout(new BorderLayout(0, 0));
 
 		JPanel panelTitulo = new JPanel();
@@ -221,36 +523,6 @@ public class AdministrativoVisual extends JFrame {
 		return tarjeta;
 	}
 
-	private void estilizarBotonMenu(JButton boton) {
-		boton.setBackground(negro);
-		boton.setForeground(blanco);
-		boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-		boton.setFocusPainted(false);
-		boton.setBorderPainted(false);
-		boton.setOpaque(true);
-		boton.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
-		boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		boton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				boton.setBackground(grisOscuro);
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				boton.setBackground(negro);
-			}
-		});
-	}
-
-	private void estilizarBotonContorno(JButton boton) {
-		estilizarBotonMenu(boton);
-		boton.setBorderPainted(true);
-		boton.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(grisMedio, 1),
-				BorderFactory.createEmptyBorder(7, 14, 7, 14)));
-	}
-
 	private int contarContratosActivos() {
 		ArrayList<Contrato> lista = EmpresaAltice.getInstance().getContratos();
 		int cantidad = 0;
@@ -269,6 +541,11 @@ public class AdministrativoVisual extends JFrame {
 		lblClientes.setText(String.valueOf(empresa.getClientes().size()));
 		lblContratos.setText(String.valueOf(contarContratosActivos()));
 		lblPendientes.setText(String.valueOf(empresa.getFacturasPendientes().size()));
+	}
+
+	private void enDesarrollo(String modulo) {
+		JOptionPane.showMessageDialog(this, modulo + " todavia no esta disponible (en desarrollo)",
+				"Altice", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private void salir() {

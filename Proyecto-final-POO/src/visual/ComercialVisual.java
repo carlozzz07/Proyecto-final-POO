@@ -73,7 +73,7 @@ public class ComercialVisual extends JFrame {
 		panelIzquierdo.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 16));
 		encabezado.add(panelIzquierdo, BorderLayout.WEST);
 
-		JLabel lblLogo = new JLabel("altice");
+		JLabel lblLogo = new JLabel("Altice");
 		lblLogo.setForeground(blanco);
 		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 28));
 		lblLogo.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 24));
