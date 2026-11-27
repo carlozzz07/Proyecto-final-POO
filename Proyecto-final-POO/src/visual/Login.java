@@ -71,7 +71,7 @@ public class Login extends JFrame {
 		panel.setPreferredSize(new Dimension(320, 450));
 		panel.setLayout(null);
 
-		JLabel lblLogo = new JLabel("Altice");
+		JLabel lblLogo = new JLabel("altice");
 		lblLogo.setForeground(blanco);
 		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 56));
 		lblLogo.setBounds(38, 140, 260, 70);
