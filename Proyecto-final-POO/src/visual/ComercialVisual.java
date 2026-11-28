@@ -3,6 +3,7 @@ package visual;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -14,6 +15,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -21,9 +23,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import logico.Comercial;
 import logico.EmpresaAltice;
+import logico.Plan;
+import logico.Servicio;
 
 public class ComercialVisual extends JFrame {
 
@@ -114,6 +120,15 @@ public class ComercialVisual extends JFrame {
 			}
 		});
 		panelIzquierdo.add(btnRegContrato);
+		
+		JButton btnPlanes = new JButton("Planes");
+		estilizarBotonMenu(btnPlanes);
+		btnPlanes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				verPlanesDisponibles();
+			}
+		});
+		panelIzquierdo.add(btnPlanes);
 
 		JButton btnListContrato = new JButton("Contratos");
 		estilizarBotonMenu(btnListContrato);
@@ -258,6 +273,54 @@ public class ComercialVisual extends JFrame {
 		boton.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(grisMedio, 1),
 				BorderFactory.createEmptyBorder(7, 14, 7, 14)));
+	}
+	
+	private void verPlanesDisponibles() {
+		ArrayList<Plan> planes = EmpresaAltice.getInstance().getPlanes();
+		String texto = "";
+		int cantidad = 0;
+		int i = 0;
+		while (i < planes.size()) {
+			Plan plan = planes.get(i);
+			if (plan.isActivo() && plan.getServicios().size() > 0) {
+				cantidad++;
+				String etiquetaPrecio = "Precio mensual";
+				if (plan.isEsPrepago()) {
+					etiquetaPrecio = "Precio por recarga";
+				}
+				texto = texto + plan.getIdPlan() + " - " + plan.getNombrePlan() + " (" + plan.getTipoPago() + ")"
+						+ "\n   " + etiquetaPrecio + ": RD$ " + String.format("%,.2f", plan.calcularPrecio()) + " + ITBIS";
+
+				ArrayList<Servicio> servicios = plan.getServicios();
+				int j = 0;
+				while (j < servicios.size()) {
+					texto = texto + "\n   - " + servicios.get(j).getTipo() + ": " + servicios.get(j).getNombre()
+							+ " (" + servicios.get(j).getDetalle() + ")";
+					j++;
+				}
+				texto = texto + "\n\n";
+			}
+			i++;
+		}
+
+		if (cantidad == 0) {
+			JOptionPane.showMessageDialog(null, "No hay planes activos disponibles por el momento",
+					"Planes disponibles", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		JTextArea area = new JTextArea(texto);
+		area.setEditable(false);
+		area.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		area.setBackground(grisClaro);
+		area.setForeground(negro);
+		area.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
+		area.setCaretPosition(0);
+
+		JScrollPane scroll = new JScrollPane(area);
+		scroll.setPreferredSize(new Dimension(520, 340));
+		JOptionPane.showMessageDialog(null, scroll, "Planes disponibles (" + cantidad + ")",
+				JOptionPane.PLAIN_MESSAGE);
 	}
 
 	private void actualizarResumen() {

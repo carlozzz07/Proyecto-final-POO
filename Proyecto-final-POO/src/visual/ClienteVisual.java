@@ -80,6 +80,30 @@ public class ClienteVisual extends JFrame {
 		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 28));
 		lblLogo.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 24));
 		panelIzquierdo.add(lblLogo);
+		
+		JButton btnContratos = new JButton("Mis contratos");
+		estilizarBotonMenu(btnContratos);
+		btnContratos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ListContrato lista = new ListContrato(cliente);
+				lista.setModal(true);
+				lista.setVisible(true);
+				actualizarResumen();
+			}
+		});
+		panelIzquierdo.add(btnContratos);
+
+		JButton btnFacturas = new JButton("Mis facturas");
+		estilizarBotonMenu(btnFacturas);
+		btnFacturas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ListFactura lista = new ListFactura(cliente);
+				lista.setModal(true);
+				lista.setVisible(true);
+				actualizarResumen();
+			}
+		});
+		panelIzquierdo.add(btnFacturas);
 
 		JPanel panelDerecho = new JPanel();
 		panelDerecho.setOpaque(false);

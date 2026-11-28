@@ -31,6 +31,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import logico.Cliente;
 import logico.Contrato;
 import logico.EmpresaAltice;
 
@@ -52,8 +53,15 @@ public class ListContrato extends JDialog {
 	private JButton reactivarbtn;
 	private JButton recargabtn;
 	private Contrato contrato = null;
+	private JButton estadobtn;
+	private static Cliente clienteFijo = null;
 
 	public ListContrato() {
+		this(null);
+	}
+
+	public ListContrato(Cliente cliente) {
+		clienteFijo = cliente;
 		setTitle("Altice - Listado de Contratos");
 		setBounds(100, 100, 1100, 560);
 		setLocationRelativeTo(null);
@@ -63,8 +71,14 @@ public class ListContrato extends JDialog {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
-		contentPane.add(crearEncabezado("Listado de contratos",
-				"Seleccione un contrato para cancelarlo, reactivarlo o registrar una recarga", 30), BorderLayout.NORTH);
+		String titulo = "Listado de contratos";
+		String subtitulo = "Seleccione un contrato para cancelarlo, reactivarlo o registrar una recarga";
+		if (clienteFijo != null) {
+			setTitle("Altice - Mis Contratos");
+			titulo = "Mis contratos";
+			subtitulo = "Consulte el estado de sus contratos";
+		}
+		contentPane.add(crearEncabezado(titulo, subtitulo, 30), BorderLayout.NORTH);
 		contentPane.add(crearCentro(), BorderLayout.CENTER);
 		contentPane.add(crearBotones(), BorderLayout.SOUTH);
 		loadContratos();
@@ -152,6 +166,16 @@ public class ListContrato extends JDialog {
 			}
 		});
 		barra.add(verificarbtn);
+		
+		estadobtn = new JButton("Ver estado");
+		estilizarBotonContorno(estadobtn);
+		estadobtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				verEstado();
+			}
+		});
+		estadobtn.setEnabled(false);
+		barra.add(estadobtn);
 
 		recargabtn = new JButton("Recarga prepago");
 		estilizarBotonContorno(recargabtn);
@@ -182,11 +206,18 @@ public class ListContrato extends JDialog {
 		});
 		cancelarbtn.setEnabled(false);
 		barra.add(cancelarbtn);
+		if (clienteFijo != null) {
+			verificarbtn.setVisible(false);
+			recargabtn.setVisible(false);
+			reactivarbtn.setVisible(false);
+			cancelarbtn.setVisible(false);
+		}
 		return barra;
 	}
 
 	private void actualizarBotones() {
 		boolean hay = contrato != null;
+		estadobtn.setEnabled(hay);
 		cancelarbtn.setEnabled(hay && contrato.isActivo());
 		reactivarbtn.setEnabled(hay && !contrato.isActivo());
 		recargabtn.setEnabled(hay && contrato.isActivo() && contrato.esPrepago());
@@ -196,6 +227,44 @@ public class ListContrato extends JDialog {
 		table.clearSelection();
 		contrato = null;
 		actualizarBotones();
+	}
+	
+	private void verEstado() {
+		if (contrato == null) {
+			return;
+		}
+		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		String texto = "Contrato: " + contrato.getIdContrato()
+				+ "\nCliente: " + contrato.getCliente().getNombre()
+				+ "\nPlan: " + contrato.getPlan().getNombrePlan() + " (" + contrato.getTipoPago() + ")"
+				+ "\nInicio: " + contrato.getFechaInicio().format(formato);
+
+		if (!contrato.isActivo()) {
+			String motivo = contrato.getMotivoCancelacion();
+			if (motivo == null || motivo.equals("")) {
+				motivo = "Sin motivo registrado";
+			}
+			texto = texto + "\nEstado: Cancelado";
+			if (contrato.getFechaFin() != null) {
+				texto = texto + "\nFecha de cancelación: " + contrato.getFechaFin().format(formato);
+			}
+			texto = texto + "\nMotivo de cancelación: " + motivo;
+		} else if (contrato.isSuspendido()) {
+			String motivo = contrato.getMotivoSuspension();
+			if (motivo == null || motivo.equals("")) {
+				motivo = "Sin motivo registrado";
+			}
+			texto = texto + "\nEstado: Suspendido\nMotivo de suspensión: " + motivo;
+		} else {
+			texto = texto + "\nEstado: Activo (sin suspensión)";
+		}
+
+		if (contrato.esPrepago() && contrato.getFechaUltimaActividad() != null) {
+			texto = texto + "\nÚltima actividad: " + contrato.getFechaUltimaActividad().format(formato)
+					+ "\n(se suspende tras " + Contrato.DIAS_INACTIVIDAD_PREPAGO + " días sin actividad)";
+		}
+		texto = texto + "\nDeuda pendiente: RD$ " + String.format("%,.2f", contrato.calcularDeudaPendiente());
+		JOptionPane.showMessageDialog(null, texto, "Estado del contrato", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private void cancelar() {
@@ -284,6 +353,9 @@ public class ListContrato extends JDialog {
 		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 		ArrayList<Contrato> lista = EmpresaAltice.getInstance().getContratos();
+		if (clienteFijo != null) {
+			lista = clienteFijo.getContratos();
+		}
 		int i = 0;
 		while (i < lista.size()) {
 			Contrato c = lista.get(i);

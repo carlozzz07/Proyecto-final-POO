@@ -242,6 +242,20 @@ public class RegContrato extends JDialog {
 	private void mostrarError(String mensaje) {
 		JOptionPane.showMessageDialog(null, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
 	}
+	
+	private boolean tieneContratoActivo(Cliente cliente, Plan plan) {
+		ArrayList<Contrato> contratos = cliente.getContratos();
+		int i = 0;
+		while (i < contratos.size()) {
+			Contrato c = contratos.get(i);
+			if (c.isActivo() && c.getPlan() != null
+					&& c.getPlan().getIdPlan().equalsIgnoreCase(plan.getIdPlan())) {
+				return true;
+			}
+			i++;
+		}
+		return false;
+	}
 
 	private void guardar() {
 		if (clientes.isEmpty()) {
@@ -272,6 +286,15 @@ public class RegContrato extends JDialog {
 			comercial = vendedor;
 		} else if (cbxComercial.getSelectedIndex() > 0) {
 			comercial = comerciales.get(cbxComercial.getSelectedIndex() - 1);
+		}
+		
+		if (plan.getServicios().size() == 0) {
+			mostrarError("El plan seleccionado no tiene servicios");
+			return;
+		}
+		if (tieneContratoActivo(cliente, plan)) {
+			mostrarError("El cliente ya tiene un contrato activo con ese plan");
+			return;
 		}
 
 		EmpresaAltice empresa = EmpresaAltice.getInstance();
