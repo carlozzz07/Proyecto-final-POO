@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -75,35 +77,32 @@ public class ClienteVisual extends JFrame {
 		panelIzquierdo.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 16));
 		encabezado.add(panelIzquierdo, BorderLayout.WEST);
 
-		JLabel lblLogo = new JLabel("Altice");
-		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 28));
+		JLabel lblLogo = crearLogo(140, 36, 28);
 		lblLogo.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 24));
 		panelIzquierdo.add(lblLogo);
-		
-		JButton btnContratos = new JButton("Mis contratos");
-		estilizarBotonMenu(btnContratos);
-		btnContratos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ListContrato lista = new ListContrato(cliente);
-				lista.setModal(true);
-				lista.setVisible(true);
-				actualizarResumen();
-			}
-		});
-		panelIzquierdo.add(btnContratos);
 
-		JButton btnFacturas = new JButton("Mis facturas");
-		estilizarBotonMenu(btnFacturas);
-		btnFacturas.addActionListener(new ActionListener() {
+		JButton btnMisContratos = new JButton("Mis contratos");
+		estilizarBotonMenu(btnMisContratos);
+		btnMisContratos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ListFactura lista = new ListFactura(cliente);
-				lista.setModal(true);
-				lista.setVisible(true);
+				ListContrato list = new ListContrato(ClienteVisual.this.cliente);
+				list.setModal(true);
+				list.setVisible(true);
+			}
+		});
+		panelIzquierdo.add(btnMisContratos);
+
+		JButton btnMisFacturas = new JButton("Mis facturas");
+		estilizarBotonMenu(btnMisFacturas);
+		btnMisFacturas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ListFactura list = new ListFactura(ClienteVisual.this.cliente);
+				list.setModal(true);
+				list.setVisible(true);
 				actualizarResumen();
 			}
 		});
-		panelIzquierdo.add(btnFacturas);
+		panelIzquierdo.add(btnMisFacturas);
 
 		JPanel panelDerecho = new JPanel();
 		panelDerecho.setOpaque(false);
@@ -263,5 +262,27 @@ public class ClienteVisual extends JFrame {
 			EmpresaAltice.getInstance().guardarDatos();
 			System.exit(0);
 		}
+	}
+
+	private JLabel crearLogo(int maxAncho, int maxAlto, int tamanoTexto) {
+		JLabel logo = new JLabel();
+		logo.setHorizontalAlignment(JLabel.LEFT);
+		java.net.URL url = getClass().getResource("/imagenes/logo_altice.png");
+		if (url != null) {
+			ImageIcon icono = new ImageIcon(url);
+			if (icono.getIconWidth() > 0 && icono.getIconHeight() > 0) {
+				double escala = Math.min((double) maxAncho / icono.getIconWidth(),
+						(double) maxAlto / icono.getIconHeight());
+				int ancho = (int) Math.round(icono.getIconWidth() * escala);
+				int alto = (int) Math.round(icono.getIconHeight() * escala);
+				Image imagen = icono.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+				logo.setIcon(new ImageIcon(imagen));
+				return logo;
+			}
+		}
+		logo.setText("Altice");
+		logo.setForeground(blanco);
+		logo.setFont(new Font("Segoe UI", Font.BOLD, tamanoTexto));
+		return logo;
 	}
 }

@@ -6,12 +6,14 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -71,10 +73,8 @@ public class Login extends JFrame {
 		panel.setPreferredSize(new Dimension(320, 450));
 		panel.setLayout(null);
 
-		JLabel lblLogo = new JLabel("altice");
-		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 56));
-		lblLogo.setBounds(38, 140, 260, 70);
+		JLabel lblLogo = crearLogo(240, 90, 56);
+		lblLogo.setBounds(44, 122, 240, 90);
 		panel.add(lblLogo);
 
 		JPanel barra = new JPanel();
@@ -252,5 +252,27 @@ public class Login extends JFrame {
 			i++;
 		}
 		return true;
+	}
+
+	private JLabel crearLogo(int maxAncho, int maxAlto, int tamanoTexto) {
+		JLabel logo = new JLabel();
+		logo.setHorizontalAlignment(JLabel.LEFT);
+		java.net.URL url = getClass().getResource("/imagenes/logo_altice.png");
+		if (url != null) {
+			ImageIcon icono = new ImageIcon(url);
+			if (icono.getIconWidth() > 0 && icono.getIconHeight() > 0) {
+				double escala = Math.min((double) maxAncho / icono.getIconWidth(),
+						(double) maxAlto / icono.getIconHeight());
+				int ancho = (int) Math.round(icono.getIconWidth() * escala);
+				int alto = (int) Math.round(icono.getIconHeight() * escala);
+				Image imagen = icono.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+				logo.setIcon(new ImageIcon(imagen));
+				return logo;
+			}
+		}
+		logo.setText("Altice");
+		logo.setForeground(blanco);
+		logo.setFont(new Font("Segoe UI", Font.BOLD, tamanoTexto));
+		return logo;
 	}
 }

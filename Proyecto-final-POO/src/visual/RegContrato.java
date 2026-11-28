@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,6 +18,7 @@ import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -242,20 +244,6 @@ public class RegContrato extends JDialog {
 	private void mostrarError(String mensaje) {
 		JOptionPane.showMessageDialog(null, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
 	}
-	
-	private boolean tieneContratoActivo(Cliente cliente, Plan plan) {
-		ArrayList<Contrato> contratos = cliente.getContratos();
-		int i = 0;
-		while (i < contratos.size()) {
-			Contrato c = contratos.get(i);
-			if (c.isActivo() && c.getPlan() != null
-					&& c.getPlan().getIdPlan().equalsIgnoreCase(plan.getIdPlan())) {
-				return true;
-			}
-			i++;
-		}
-		return false;
-	}
 
 	private void guardar() {
 		if (clientes.isEmpty()) {
@@ -286,15 +274,6 @@ public class RegContrato extends JDialog {
 			comercial = vendedor;
 		} else if (cbxComercial.getSelectedIndex() > 0) {
 			comercial = comerciales.get(cbxComercial.getSelectedIndex() - 1);
-		}
-		
-		if (plan.getServicios().size() == 0) {
-			mostrarError("El plan seleccionado no tiene servicios");
-			return;
-		}
-		if (tieneContratoActivo(cliente, plan)) {
-			mostrarError("El cliente ya tiene un contrato activo con ese plan");
-			return;
 		}
 
 		EmpresaAltice empresa = EmpresaAltice.getInstance();
@@ -351,9 +330,7 @@ public class RegContrato extends JDialog {
 		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 		textos.add(lblSubtitulo);
 
-		JLabel lblLogo = new JLabel("Altice");
-		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+		JLabel lblLogo = crearLogo(130, 34, 26);
 		encabezado.add(lblLogo, BorderLayout.EAST);
 		return encabezado;
 	}
@@ -460,5 +437,27 @@ public class RegContrato extends JDialog {
 				boton.setBackground(blanco);
 			}
 		});
+	}
+
+	private JLabel crearLogo(int maxAncho, int maxAlto, int tamanoTexto) {
+		JLabel logo = new JLabel();
+		logo.setHorizontalAlignment(JLabel.LEFT);
+		java.net.URL url = getClass().getResource("/imagenes/logo_altice.png");
+		if (url != null) {
+			ImageIcon icono = new ImageIcon(url);
+			if (icono.getIconWidth() > 0 && icono.getIconHeight() > 0) {
+				double escala = Math.min((double) maxAncho / icono.getIconWidth(),
+						(double) maxAlto / icono.getIconHeight());
+				int ancho = (int) Math.round(icono.getIconWidth() * escala);
+				int alto = (int) Math.round(icono.getIconHeight() * escala);
+				Image imagen = icono.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+				logo.setIcon(new ImageIcon(imagen));
+				return logo;
+			}
+		}
+		logo.setText("Altice");
+		logo.setForeground(blanco);
+		logo.setFont(new Font("Segoe UI", Font.BOLD, tamanoTexto));
+		return logo;
 	}
 }

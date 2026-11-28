@@ -7,17 +7,18 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.Normalizer;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -29,6 +30,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 import logico.Cliente;
@@ -49,20 +52,32 @@ public class ListContrato extends JDialog {
 	public static DefaultTableModel model;
 	public static Object row[];
 	private static JTextField txtBuscar;
+	private static Cliente filtroCliente = null;
 	private JButton cancelarbtn;
 	private JButton reactivarbtn;
 	private JButton recargabtn;
 	private Contrato contrato = null;
-	private JButton estadobtn;
-	private static Cliente clienteFijo = null;
 
+	/** Lista todos los contratos (administrativo y comercial). */
 	public ListContrato() {
-		this(null);
+		this((Cliente) null);
 	}
 
+	/**
+	 * Si recibe un cliente, solo muestra los contratos de ese cliente y la
+	 * ventana queda de solo lectura (para el panel del cliente).
+	 */
 	public ListContrato(Cliente cliente) {
-		clienteFijo = cliente;
-		setTitle("Altice - Listado de Contratos");
+		filtroCliente = cliente;
+		String titulo = "Listado de contratos";
+		String subtitulo = "Seleccione un contrato para cancelarlo, reactivarlo o registrar una recarga";
+		if (cliente != null) {
+			titulo = "Mis contratos";
+			subtitulo = "Consulte el estado de sus contratos y su deuda";
+			setTitle("Altice - Mis Contratos");
+		} else {
+			setTitle("Altice - Listado de Contratos");
+		}
 		setBounds(100, 100, 1100, 560);
 		setLocationRelativeTo(null);
 
@@ -71,13 +86,6 @@ public class ListContrato extends JDialog {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
-		String titulo = "Listado de contratos";
-		String subtitulo = "Seleccione un contrato para cancelarlo, reactivarlo o registrar una recarga";
-		if (clienteFijo != null) {
-			setTitle("Altice - Mis Contratos");
-			titulo = "Mis contratos";
-			subtitulo = "Consulte el estado de sus contratos";
-		}
 		contentPane.add(crearEncabezado(titulo, subtitulo, 30), BorderLayout.NORTH);
 		contentPane.add(crearCentro(), BorderLayout.CENTER);
 		contentPane.add(crearBotones(), BorderLayout.SOUTH);
@@ -102,11 +110,17 @@ public class ListContrato extends JDialog {
 
 		txtBuscar = new JTextField();
 		estilizarCampo(txtBuscar);
-		txtBuscar.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				loadContratos();
-				limpiarSeleccion();
+		txtBuscar.getDocument().addDocumentListener(new DocumentListener() {
+			public void insertUpdate(DocumentEvent e) {
+				filtrar();
+			}
+
+			public void removeUpdate(DocumentEvent e) {
+				filtrar();
+			}
+
+			public void changedUpdate(DocumentEvent e) {
+				filtrar();
 			}
 		});
 		panelBusqueda.add(txtBuscar, BorderLayout.CENTER);
@@ -157,6 +171,9 @@ public class ListContrato extends JDialog {
 			}
 		});
 		barra.add(cerrarButton);
+		if (filtroCliente != null) {
+			return barra;
+		}
 
 		JButton verificarbtn = new JButton("Verificar suspensiones");
 		estilizarBotonContorno(verificarbtn);
@@ -166,16 +183,6 @@ public class ListContrato extends JDialog {
 			}
 		});
 		barra.add(verificarbtn);
-		
-		estadobtn = new JButton("Ver estado");
-		estilizarBotonContorno(estadobtn);
-		estadobtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				verEstado();
-			}
-		});
-		estadobtn.setEnabled(false);
-		barra.add(estadobtn);
 
 		recargabtn = new JButton("Recarga prepago");
 		estilizarBotonContorno(recargabtn);
@@ -206,65 +213,28 @@ public class ListContrato extends JDialog {
 		});
 		cancelarbtn.setEnabled(false);
 		barra.add(cancelarbtn);
-		if (clienteFijo != null) {
-			verificarbtn.setVisible(false);
-			recargabtn.setVisible(false);
-			reactivarbtn.setVisible(false);
-			cancelarbtn.setVisible(false);
-		}
 		return barra;
 	}
 
 	private void actualizarBotones() {
+		if (cancelarbtn == null) {
+			return;
+		}
 		boolean hay = contrato != null;
-		estadobtn.setEnabled(hay);
 		cancelarbtn.setEnabled(hay && contrato.isActivo());
 		reactivarbtn.setEnabled(hay && !contrato.isActivo());
 		recargabtn.setEnabled(hay && contrato.isActivo() && contrato.esPrepago());
+	}
+
+	private void filtrar() {
+		loadContratos();
+		limpiarSeleccion();
 	}
 
 	private void limpiarSeleccion() {
 		table.clearSelection();
 		contrato = null;
 		actualizarBotones();
-	}
-	
-	private void verEstado() {
-		if (contrato == null) {
-			return;
-		}
-		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-		String texto = "Contrato: " + contrato.getIdContrato()
-				+ "\nCliente: " + contrato.getCliente().getNombre()
-				+ "\nPlan: " + contrato.getPlan().getNombrePlan() + " (" + contrato.getTipoPago() + ")"
-				+ "\nInicio: " + contrato.getFechaInicio().format(formato);
-
-		if (!contrato.isActivo()) {
-			String motivo = contrato.getMotivoCancelacion();
-			if (motivo == null || motivo.equals("")) {
-				motivo = "Sin motivo registrado";
-			}
-			texto = texto + "\nEstado: Cancelado";
-			if (contrato.getFechaFin() != null) {
-				texto = texto + "\nFecha de cancelación: " + contrato.getFechaFin().format(formato);
-			}
-			texto = texto + "\nMotivo de cancelación: " + motivo;
-		} else if (contrato.isSuspendido()) {
-			String motivo = contrato.getMotivoSuspension();
-			if (motivo == null || motivo.equals("")) {
-				motivo = "Sin motivo registrado";
-			}
-			texto = texto + "\nEstado: Suspendido\nMotivo de suspensión: " + motivo;
-		} else {
-			texto = texto + "\nEstado: Activo (sin suspensión)";
-		}
-
-		if (contrato.esPrepago() && contrato.getFechaUltimaActividad() != null) {
-			texto = texto + "\nÚltima actividad: " + contrato.getFechaUltimaActividad().format(formato)
-					+ "\n(se suspende tras " + Contrato.DIAS_INACTIVIDAD_PREPAGO + " días sin actividad)";
-		}
-		texto = texto + "\nDeuda pendiente: RD$ " + String.format("%,.2f", contrato.calcularDeudaPendiente());
-		JOptionPane.showMessageDialog(null, texto, "Estado del contrato", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private void cancelar() {
@@ -353,15 +323,12 @@ public class ListContrato extends JDialog {
 		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 		ArrayList<Contrato> lista = EmpresaAltice.getInstance().getContratos();
-		if (clienteFijo != null) {
-			lista = clienteFijo.getContratos();
-		}
 		int i = 0;
 		while (i < lista.size()) {
 			Contrato c = lista.get(i);
-			if (texto.equals("") || c.getIdContrato().toLowerCase().contains(texto)
-					|| c.getCliente().getNombre().toLowerCase().contains(texto)
-					|| c.getCliente().getCedula().contains(texto)) {
+			boolean delCliente = filtroCliente == null
+					|| c.getCliente().getCedula().equals(filtroCliente.getCedula());
+			if (delCliente && coincide(texto, c.getIdContrato(), c.getCliente().getNombre(), c.getCliente().getCedula(), c.getPlan().getNombrePlan())) {
 				row[0] = c.getIdContrato();
 				row[1] = c.getCliente().getNombre();
 				row[2] = c.getPlan().getNombrePlan();
@@ -407,9 +374,7 @@ public class ListContrato extends JDialog {
 		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 		textos.add(lblSubtitulo);
 
-		JLabel lblLogo = new JLabel("Altice");
-		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+		JLabel lblLogo = crearLogo(130, 34, 26);
 		encabezado.add(lblLogo, BorderLayout.EAST);
 		return encabezado;
 	}
@@ -550,5 +515,54 @@ public class ListContrato extends JDialog {
 		scroll.getViewport().setBackground(blanco);
 		scroll.setViewportView(tabla);
 		return scroll;
+	}
+
+	private JLabel crearLogo(int maxAncho, int maxAlto, int tamanoTexto) {
+		JLabel logo = new JLabel();
+		logo.setHorizontalAlignment(JLabel.LEFT);
+		java.net.URL url = getClass().getResource("/imagenes/logo_altice.png");
+		if (url != null) {
+			ImageIcon icono = new ImageIcon(url);
+			if (icono.getIconWidth() > 0 && icono.getIconHeight() > 0) {
+				double escala = Math.min((double) maxAncho / icono.getIconWidth(),
+						(double) maxAlto / icono.getIconHeight());
+				int ancho = (int) Math.round(icono.getIconWidth() * escala);
+				int alto = (int) Math.round(icono.getIconHeight() * escala);
+				Image imagen = icono.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+				logo.setIcon(new ImageIcon(imagen));
+				return logo;
+			}
+		}
+		logo.setText("Altice");
+		logo.setForeground(blanco);
+		logo.setFont(new Font("Segoe UI", Font.BOLD, tamanoTexto));
+		return logo;
+	}
+
+	private static String normalizar(String texto) {
+		String limpio = Normalizer.normalize(texto, Normalizer.Form.NFD);
+		return limpio.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+	}
+
+	/**
+	 * Devuelve true si todas las palabras escritas en la busqueda aparecen en
+	 * alguno de los campos (sin importar mayusculas, tildes ni el orden).
+	 */
+	private static boolean coincide(String busqueda, String... campos) {
+		String[] palabras = normalizar(busqueda).trim().split("\\s+");
+		String todo = "";
+		int i = 0;
+		while (i < campos.length) {
+			todo = todo + " " + normalizar(campos[i]);
+			i++;
+		}
+		int j = 0;
+		while (j < palabras.length) {
+			if (!todo.contains(palabras[j])) {
+				return false;
+			}
+			j++;
+		}
+		return true;
 	}
 }

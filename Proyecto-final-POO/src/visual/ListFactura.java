@@ -8,18 +8,19 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -31,6 +32,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -116,9 +119,7 @@ public class ListFactura extends JDialog {
 		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 		textos.add(lblSubtitulo);
 
-		JLabel lblLogo = new JLabel("Altice");
-		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+		JLabel lblLogo = crearLogo(130, 34, 26);
 		encabezado.add(lblLogo, BorderLayout.EAST);
 		return encabezado;
 	}
@@ -134,7 +135,7 @@ public class ListFactura extends JDialog {
 		panelBusqueda.setLayout(new BorderLayout(14, 0));
 		centro.add(panelBusqueda, BorderLayout.NORTH);
 
-		JLabel lblBuscar = new JLabel("BUSCAR (ID, NCF, CLIENTE O CÉDULA)");
+		JLabel lblBuscar = new JLabel("BUSCAR (ID, NCF, CLIENTE O CEDULA)");
 		lblBuscar.setForeground(grisOscuro);
 		lblBuscar.setFont(new Font("Segoe UI", Font.BOLD, 11));
 		panelBusqueda.add(lblBuscar, BorderLayout.WEST);
@@ -146,11 +147,17 @@ public class ListFactura extends JDialog {
 		txtBuscar.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createMatteBorder(0, 0, 2, 0, negro),
 				BorderFactory.createEmptyBorder(6, 10, 6, 10)));
-		txtBuscar.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				loadFacturas();
-				limpiarSeleccion();
+		txtBuscar.getDocument().addDocumentListener(new DocumentListener() {
+			public void insertUpdate(DocumentEvent e) {
+				filtrar();
+			}
+
+			public void removeUpdate(DocumentEvent e) {
+				filtrar();
+			}
+
+			public void changedUpdate(DocumentEvent e) {
+				filtrar();
 			}
 		});
 		panelBusqueda.add(txtBuscar, BorderLayout.CENTER);
@@ -165,13 +172,12 @@ public class ListFactura extends JDialog {
 		cbxFiltro.setPreferredSize(new Dimension(150, 36));
 		cbxFiltro.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				loadFacturas();
-				limpiarSeleccion();
+				filtrar();
 			}
 		});
 		panelBusqueda.add(cbxFiltro, BorderLayout.EAST);
 
-		String headers[] = {"Id", "NCF", "Cliente", "Contrato", "Emisión", "Vencimiento", "Total", "Estado"};
+		String headers[] = {"Id", "NCF", "Cliente", "Contrato", "Emision", "Vencimiento", "Total", "Estado"};
 		model = new DefaultTableModel() {
 			public boolean isCellEditable(int fila, int columna) {
 				return false;
@@ -411,13 +417,8 @@ public class ListFactura extends JDialog {
 	}
 
 	private boolean coincide(Factura f, String texto) {
-		if (texto.equals("")) {
-			return true;
-		}
-		return f.getIdFactura().toLowerCase().contains(texto)
-				|| f.getNcf().toLowerCase().contains(texto)
-				|| f.getContrato().getCliente().getNombre().toLowerCase().contains(texto)
-				|| f.getContrato().getCliente().getCedula().contains(texto);
+		return coincidePalabras(texto, f.getIdFactura(), f.getNcf(), f.getContrato().getCliente().getNombre(),
+				f.getContrato().getCliente().getCedula(), f.getContrato().getIdContrato());
 	}
 
 	private String textoEstado(Factura f) {
@@ -441,7 +442,7 @@ public class ListFactura extends JDialog {
 		model.setRowCount(0);
 		row = new Object[model.getColumnCount()];
 
-		String texto = txtBuscar.getText().toLowerCase();
+		String texto = txtBuscar.getText();
 		int mostradas = 0;
 		float porCobrar = 0;
 
@@ -470,6 +471,11 @@ public class ListFactura extends JDialog {
 				+ String.format("%,.2f", porCobrar));
 	}
 
+	private void filtrar() {
+		loadFacturas();
+		limpiarSeleccion();
+	}
+
 	private void seleccionar() {
 		int index = table.getSelectedRow();
 		if (index > -1) {
@@ -484,6 +490,7 @@ public class ListFactura extends JDialog {
 	}
 
 	private void limpiarSeleccion() {
+		table.clearSelection();
 		factura = null;
 		btnDetalle.setEnabled(false);
 		if (!soloLectura) {
@@ -500,7 +507,7 @@ public class ListFactura extends JDialog {
 				+ "\nCliente: " + factura.getContrato().getCliente().getNombre()
 				+ "\nContrato: " + factura.getContrato().getIdContrato()
 				+ "\nPlan: " + factura.getContrato().getPlan().getNombrePlan()
-				+ "\nEmisión: " + fecha(factura.getFechaEmision())
+				+ "\nEmision: " + fecha(factura.getFechaEmision())
 				+ "\nVencimiento: " + fecha(factura.getFechaVencimiento())
 				+ "\nEstado: " + textoEstado(factura);
 		if (factura.isPagada()) {
@@ -517,13 +524,13 @@ public class ListFactura extends JDialog {
 			return;
 		}
 		if (factura.isPagada()) {
-			JOptionPane.showMessageDialog(null, "La factura ya está pagada", "Información", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "La factura ya esta pagada", "Informacion", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
 		int option = JOptionPane.showConfirmDialog(null,
-				"¿Marcar como pagada la factura " + factura.getIdFactura() + " por RD$ "
+				"Marcar como pagada la factura " + factura.getIdFactura() + " por RD$ "
 						+ String.format("%,.2f", factura.getTotal()) + "?",
-				"Confirmación", JOptionPane.YES_NO_OPTION);
+				"Confirmacion", JOptionPane.YES_NO_OPTION);
 		if (option == JOptionPane.YES_OPTION) {
 			String id = factura.getIdFactura();
 			Contrato contrato = factura.getContrato();
@@ -538,15 +545,15 @@ public class ListFactura extends JDialog {
 			if (contrato != null) {
 				if (!contrato.isActivo()) {
 					mensaje = mensaje + "\nEl contrato " + contrato.getIdContrato()
-							+ " está cancelado. Puede reactivarse desde el listado de contratos.";
+							+ " esta cancelado. Puede reactivarse desde el listado de contratos.";
 				} else if (estabaSuspendido && !contrato.isSuspendido()) {
-					mensaje = mensaje + "\nEl contrato " + contrato.getIdContrato() + " ya no está suspendido.";
+					mensaje = mensaje + "\nEl contrato " + contrato.getIdContrato() + " ya no esta suspendido.";
 				} else if (contrato.isSuspendido()) {
 					mensaje = mensaje + "\nEl contrato " + contrato.getIdContrato()
 							+ " sigue suspendido (" + contrato.getMotivoSuspension() + ").";
 				}
 			}
-			JOptionPane.showMessageDialog(null, mensaje, "Información", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, mensaje, "Informacion", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
@@ -578,10 +585,10 @@ public class ListFactura extends JDialog {
 
 	private void ejecutarVerificacion() {
 		int option = JOptionPane.showConfirmDialog(null,
-				"Se revisarán todos los contratos:\n"
+				"Se revisaran todos los contratos:\n"
 						+ "- Postpago: se suspenden con facturas vencidas y se cancelan con 3 facturas vencidas o 3 meses de atraso.\n"
-						+ "- Prepago: se suspenden tras " + Contrato.DIAS_INACTIVIDAD_PREPAGO + " días sin actividad.\n\n"
-						+ "¿Desea continuar?",
+						+ "- Prepago: se suspenden tras " + Contrato.DIAS_INACTIVIDAD_PREPAGO + " dias sin actividad.\n\n"
+						+ "Desea continuar?",
 				"Verificar suspensiones", JOptionPane.YES_NO_OPTION);
 		if (option == JOptionPane.YES_OPTION) {
 			EmpresaAltice empresa = EmpresaAltice.getInstance();
@@ -593,9 +600,60 @@ public class ListFactura extends JDialog {
 			loadFacturas();
 			limpiarSeleccion();
 
-			JOptionPane.showMessageDialog(null, "Verificación terminada.\n\nContratos suspendidos: " + suspendidosAntes
+			JOptionPane.showMessageDialog(null, "Verificacion terminada.\n\nContratos suspendidos: " + suspendidosAntes
 					+ " -> " + contarSuspendidos() + "\nContratos cancelados: " + canceladosAntes + " -> " + contarCancelados(),
-					"Información", JOptionPane.INFORMATION_MESSAGE);
+					"Informacion", JOptionPane.INFORMATION_MESSAGE);
 		}
+	}
+
+	private static String normalizar(String texto) {
+		String limpio = Normalizer.normalize(texto, Normalizer.Form.NFD);
+		return limpio.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+	}
+
+	/**
+	 * Devuelve true si todas las palabras escritas en la busqueda aparecen en
+	 * alguno de los campos (sin importar mayusculas, tildes ni el orden).
+	 */
+	private static boolean coincidePalabras(String busqueda, String... campos) {
+		String[] palabras = normalizar(busqueda).trim().split("\\s+");
+		String todo = "";
+		int i = 0;
+		while (i < campos.length) {
+			if (campos[i] != null) {
+				todo = todo + " " + normalizar(campos[i]);
+			}
+			i++;
+		}
+		int j = 0;
+		while (j < palabras.length) {
+			if (!todo.contains(palabras[j])) {
+				return false;
+			}
+			j++;
+		}
+		return true;
+	}
+
+	private JLabel crearLogo(int maxAncho, int maxAlto, int tamanoTexto) {
+		JLabel logo = new JLabel();
+		logo.setHorizontalAlignment(JLabel.LEFT);
+		java.net.URL url = getClass().getResource("/imagenes/logo_altice.png");
+		if (url != null) {
+			ImageIcon icono = new ImageIcon(url);
+			if (icono.getIconWidth() > 0 && icono.getIconHeight() > 0) {
+				double escala = Math.min((double) maxAncho / icono.getIconWidth(),
+						(double) maxAlto / icono.getIconHeight());
+				int ancho = (int) Math.round(icono.getIconWidth() * escala);
+				int alto = (int) Math.round(icono.getIconHeight() * escala);
+				Image imagen = icono.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+				logo.setIcon(new ImageIcon(imagen));
+				return logo;
+			}
+		}
+		logo.setText("Altice");
+		logo.setForeground(blanco);
+		logo.setFont(new Font("Segoe UI", Font.BOLD, tamanoTexto));
+		return logo;
 	}
 }

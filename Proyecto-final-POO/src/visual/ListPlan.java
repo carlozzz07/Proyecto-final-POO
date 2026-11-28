@@ -7,16 +7,17 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.Normalizer;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -28,6 +29,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 import logico.Contrato;
@@ -88,11 +91,17 @@ public class ListPlan extends JDialog {
 
 		txtBuscar = new JTextField();
 		estilizarCampo(txtBuscar);
-		txtBuscar.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				loadPlanes();
-				limpiarSeleccion();
+		txtBuscar.getDocument().addDocumentListener(new DocumentListener() {
+			public void insertUpdate(DocumentEvent e) {
+				filtrar();
+			}
+
+			public void removeUpdate(DocumentEvent e) {
+				filtrar();
+			}
+
+			public void changedUpdate(DocumentEvent e) {
+				filtrar();
 			}
 		});
 		panelBusqueda.add(txtBuscar, BorderLayout.CENTER);
@@ -171,6 +180,11 @@ public class ListPlan extends JDialog {
 		return barra;
 	}
 
+	private void filtrar() {
+		loadPlanes();
+		limpiarSeleccion();
+	}
+
 	private void limpiarSeleccion() {
 		table.clearSelection();
 		plan = null;
@@ -242,7 +256,7 @@ public class ListPlan extends JDialog {
 		int i = 0;
 		while (i < lista.size()) {
 			Plan p = lista.get(i);
-			if (texto.equals("") || p.getNombrePlan().toLowerCase().contains(texto)) {
+			if (coincide(texto, p.getNombrePlan(), p.getIdPlan(), p.getTipoPago())) {
 				row[0] = p.getIdPlan();
 				row[1] = p.getNombrePlan();
 				row[2] = p.getTipoPago();
@@ -281,9 +295,7 @@ public class ListPlan extends JDialog {
 		lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 		textos.add(lblSubtitulo);
 
-		JLabel lblLogo = new JLabel("Altice");
-		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+		JLabel lblLogo = crearLogo(130, 34, 26);
 		encabezado.add(lblLogo, BorderLayout.EAST);
 		return encabezado;
 	}
@@ -424,5 +436,54 @@ public class ListPlan extends JDialog {
 		scroll.getViewport().setBackground(blanco);
 		scroll.setViewportView(tabla);
 		return scroll;
+	}
+
+	private JLabel crearLogo(int maxAncho, int maxAlto, int tamanoTexto) {
+		JLabel logo = new JLabel();
+		logo.setHorizontalAlignment(JLabel.LEFT);
+		java.net.URL url = getClass().getResource("/imagenes/logo_altice.png");
+		if (url != null) {
+			ImageIcon icono = new ImageIcon(url);
+			if (icono.getIconWidth() > 0 && icono.getIconHeight() > 0) {
+				double escala = Math.min((double) maxAncho / icono.getIconWidth(),
+						(double) maxAlto / icono.getIconHeight());
+				int ancho = (int) Math.round(icono.getIconWidth() * escala);
+				int alto = (int) Math.round(icono.getIconHeight() * escala);
+				Image imagen = icono.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+				logo.setIcon(new ImageIcon(imagen));
+				return logo;
+			}
+		}
+		logo.setText("Altice");
+		logo.setForeground(blanco);
+		logo.setFont(new Font("Segoe UI", Font.BOLD, tamanoTexto));
+		return logo;
+	}
+
+	private static String normalizar(String texto) {
+		String limpio = Normalizer.normalize(texto, Normalizer.Form.NFD);
+		return limpio.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+	}
+
+	/**
+	 * Devuelve true si todas las palabras escritas en la busqueda aparecen en
+	 * alguno de los campos (sin importar mayusculas, tildes ni el orden).
+	 */
+	private static boolean coincide(String busqueda, String... campos) {
+		String[] palabras = normalizar(busqueda).trim().split("\\s+");
+		String todo = "";
+		int i = 0;
+		while (i < campos.length) {
+			todo = todo + " " + normalizar(campos[i]);
+			i++;
+		}
+		int j = 0;
+		while (j < palabras.length) {
+			if (!todo.contains(palabras[j])) {
+				return false;
+			}
+			j++;
+		}
+		return true;
 	}
 }

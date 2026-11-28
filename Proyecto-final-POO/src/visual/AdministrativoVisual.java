@@ -7,6 +7,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -93,13 +95,11 @@ public class AdministrativoVisual extends JFrame {
 		JPanel marca = new JPanel();
 		marca.setOpaque(false);
 		marca.setLayout(new GridLayout(2, 1, 0, 2));
-		marca.setBorder(BorderFactory.createEmptyBorder(26, 22, 22, 22));
-		marca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+		marca.setBorder(BorderFactory.createEmptyBorder(22, 22, 18, 22));
+		marca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
 		marca.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-		JLabel lblLogo = new JLabel("Altice");
-		lblLogo.setForeground(blanco);
-		lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 32));
+		JLabel lblLogo = crearLogo(190, 40, 32);
 		marca.add(lblLogo);
 
 		JLabel lblRol = new JLabel("Panel administrativo");
@@ -215,6 +215,15 @@ public class AdministrativoVisual extends JFrame {
 			}
 		});
 
+		agregarOpcion(facturas, "Listar facturas", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ListFactura list = new ListFactura();
+				list.setModal(true);
+				list.setVisible(true);
+				actualizarResumen();
+			}
+		});
+
 		// Reportes (pendiente: vista de reportes)
 		crearModuloSimple("Reportes", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -271,6 +280,7 @@ public class AdministrativoVisual extends JFrame {
 		cabecera.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				cerrarModulos();
+				marcarModulo((JButton) e.getSource(), true);
 				accion.actionPerformed(e);
 			}
 		});
@@ -362,9 +372,11 @@ public class AdministrativoVisual extends JFrame {
 		if (abierto) {
 			cabecera.setBackground(grisOscuro);
 			cabecera.setFont(new Font("Segoe UI", Font.BOLD, 14));
+			// Borde compuesto: barra blanca a la izquierda + margen interno mayor,
+			// con lo que el texto del modulo seleccionado se corre hacia adelante.
 			cabecera.setBorder(BorderFactory.createCompoundBorder(
-					BorderFactory.createMatteBorder(0, 4, 0, 0, blanco),
-					BorderFactory.createEmptyBorder(0, 18, 0, 10)));
+					BorderFactory.createMatteBorder(0, 5, 0, 0, blanco),
+					BorderFactory.createEmptyBorder(0, 33, 0, 10)));
 		} else {
 			cabecera.setBackground(negro);
 			cabecera.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -568,5 +580,27 @@ public class AdministrativoVisual extends JFrame {
 			EmpresaAltice.getInstance().guardarDatos();
 			System.exit(0);
 		}
+	}
+
+	private JLabel crearLogo(int maxAncho, int maxAlto, int tamanoTexto) {
+		JLabel logo = new JLabel();
+		logo.setHorizontalAlignment(JLabel.LEFT);
+		java.net.URL url = getClass().getResource("/imagenes/logo_altice.png");
+		if (url != null) {
+			ImageIcon icono = new ImageIcon(url);
+			if (icono.getIconWidth() > 0 && icono.getIconHeight() > 0) {
+				double escala = Math.min((double) maxAncho / icono.getIconWidth(),
+						(double) maxAlto / icono.getIconHeight());
+				int ancho = (int) Math.round(icono.getIconWidth() * escala);
+				int alto = (int) Math.round(icono.getIconHeight() * escala);
+				Image imagen = icono.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+				logo.setIcon(new ImageIcon(imagen));
+				return logo;
+			}
+		}
+		logo.setText("Altice");
+		logo.setForeground(blanco);
+		logo.setFont(new Font("Segoe UI", Font.BOLD, tamanoTexto));
+		return logo;
 	}
 }
